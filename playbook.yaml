@@ -594,6 +594,10 @@
       cmd: ./pharo RoassalPlayground.image eval --save "PharoDarkTheme beCurrent"
       chdir: /home/kasm-default-profile/Pharo/images/RoassalPlayground
       executable: /bin/bash
+  - name: Create directory for pharo-local/iceberg/ in /home/kasm-default-profile/Pharo/images/RoassalPlayground/
+    shell:
+      cmd: mkdir -p pharo-local/iceberg/
+      chdir: /home/kasm-default-profile/Pharo/images/RoassalPlayground/
   - name: Create directory for Roassal3 in RoassalPlayground/pharo-local/iceberg
     shell:
       cmd: mkdir -p Roassal3
