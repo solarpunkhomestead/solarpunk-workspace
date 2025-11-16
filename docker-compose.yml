@@ -5,7 +5,7 @@ services:
     build: .
     image: ghcr.io/mdrs-community/solarpunkhomestead/solarpunk-workspace:main
     ports:
-      - "6901:6901"
+      - "6902:6901"
     environment:
       VNC_PW: password
     shm_size: '512m'
