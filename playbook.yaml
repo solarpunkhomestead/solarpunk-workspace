@@ -517,7 +517,7 @@
     - install_pharo
 
   vars:
-    pharo_launcher_version: "c661cf8e517bf2695fb637aa058d7fab3449107a"
+    pharo_launcher_version: "3.4.3"
     pharo_version: "11"
     roassal_version: "v1.01b"
     roassalexporter_version: "v1.0"
