@@ -571,17 +571,13 @@
     shell: echo "[Desktop Entry]\nName=Pharo\nGenericName=Pharo\nExec=pharo-launcher\nIcon=/home/kasm-default-profile/pharo-launcher/icons/pharo-launcher.png\nTerminal=false\nType=Application\nStartupNotify=false\nCategories=Application;Development;" > /usr/share/applications/pharo.desktop
   - name: Create RoassalPlayground (pharo image) using PharoLaucher-CLI
     shell:
-      cmd: ./pharo PharoLauncher.image clap launcher image create fromRepo --newImageName RoassalPlayground pharo-graphics/Roassal
+      cmd: ./pharo PharoLauncher.image clap launcher image create RoassalPlayground --no-launch
       chdir: /home/kasm-default-profile/pharo-launcher
       executable: /bin/bash
-  - name: Change remote origin to https://github.com/ObjectProfile/Roassal3.git
+  - name: Clone Roassl3 into RoassalPlayground/pharo-local/iceberg/Roassal3
     shell:
-      cmd: git remote set-url origin https://github.com/ObjectProfile/Roassal3.git
-      chdir: /home/kasm-default-profile/Pharo/images/RoassalPlayground/pharo-local/iceberg/pharo-graphics/Roassal
-  - name: Fetch upstream in Roassal repo
-    shell:
-      cmd: git fetch
-      chdir: /home/kasm-default-profile/Pharo/images/RoassalPlayground/pharo-local/iceberg/pharo-graphics/Roassal
+      cmd: git clone https://github.com/ObjectProfile/Roassal3.git
+      chdir: /home/kasm-default-profile/Pharo/images/RoassalPlayground/pharo-local/iceberg/Roassal3
   - name: Checkout {{ roassal_version }} in Roassal repo
     shell:
       cmd: git checkout {{ roassal_version }}
