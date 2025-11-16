@@ -4,7 +4,7 @@
 
 ## Introduction
 
-This repo provides an Immutable-Infrastructure-as-Code (IIaC) workspace for the Mars Desert Research Station (MDRS), based on an Ansible template for [KASM Ubuntu Jammy](https://hub.docker.com/r/kasmweb/core-ubuntu-jammy) images.  The workspace is configured with the following software:
+This repo provides an Immutable-Infrastructure-as-Code (IIaC) workspace for Solarpunk Open Source Hardware (OSHW) development, based on an Ansible template for [KASM Ubuntu Jammy](https://hub.docker.com/r/kasmweb/core-ubuntu-jammy) images.  The workspace is configured with the following software:
 
 - Node JS Tools
     - nodejs v20.11.1
@@ -65,14 +65,14 @@ From a bash terminal,
 
 ```bash
 cd ~
-git clone https://github.com/mdrs-community/mdrs-workspace-image.git
+git clone https://github.com/solarpunkhomestead/solarpunk-workspace.git
 ```
-For those unfamiliar, this command will make a local copy of the mdrs-workspace-image repository into the current directory, using the Git source control system.  This step only needs to be done once.
+For those unfamiliar, this command will make a local copy of the solarpunk-workspace repository into the current directory, using the Git source control system.  This step only needs to be done once.
 
-2. Change directory into `mdrs-workspace-image`.
+2. Change directory into `solarpunk-workspace`.
 
 ```bash
-cd mdrs-workspace-image
+cd solarpunk-workspace
 ```
 
 3. Run `docker-compose pull` (Note: Linux users may need to prepend this command with `sudo`, and Windows and Mac users must have Docker Desktop running) to pull the published version of the workspace image or run `docker-compose build` to build the image locally.  This command is needed initially and can also be used later to retrieve updated versions of the repo.
