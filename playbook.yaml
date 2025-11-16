@@ -574,15 +574,6 @@
       cmd: ./pharo PharoLauncher.image clap launcher image create RoassalPlayground --no-launch
       chdir: /home/kasm-default-profile/pharo-launcher
       executable: /bin/bash
-  - name: Clone Roassl3 into RoassalPlayground/pharo-local/iceberg/Roassal3
-    shell:
-      cmd: git clone https://github.com/ObjectProfile/Roassal3.git
-      chdir: /home/kasm-default-profile/Pharo/images/RoassalPlayground/pharo-local/iceberg/Roassal3
-  - name: Checkout {{ roassal_version }} in Roassal repo
-    shell:
-      cmd: git checkout {{ roassal_version }}
-      chdir: /home/kasm-default-profile/Pharo/images/RoassalPlayground/pharo-local/iceberg/pharo-graphics/Roassal
-      executable: /bin/bash
   - name: Download Pharo {{ pharo_version }} image + vm into RoassalPlayground
     shell:
       cmd: curl https://get.pharo.org/{{ pharo_version }}0+vm | bash
@@ -602,6 +593,19 @@
     shell:
       cmd: ./pharo RoassalPlayground.image eval --save "PharoDarkTheme beCurrent"
       chdir: /home/kasm-default-profile/Pharo/images/RoassalPlayground
+      executable: /bin/bash
+  - name: Create directory for Roassal3 in RoassalPlayground/pharo-local/iceberg
+    shell:
+      cmd: mkdir -p Roassal3
+      chdir: /home/kasm-default-profile/Pharo/images/RoassalPlayground/pharo-local/iceberg/
+  - name: Clone Roassal3 into RoassalPlayground/pharo-local/iceberg/Roassal3
+    shell:
+      cmd: git clone https://github.com/ObjectProfile/Roassal3.git
+      chdir: /home/kasm-default-profile/Pharo/images/RoassalPlayground/pharo-local/iceberg/Roassal3
+  - name: Checkout {{ roassal_version }} in Roassal repo
+    shell:
+      cmd: git checkout {{ roassal_version }}
+      chdir: /home/kasm-default-profile/Pharo/images/RoassalPlayground/pharo-local/iceberg/pharo-graphics/Roassal
       executable: /bin/bash
   - name: Load Full Roassal3 package from local repo into RoassalPlayground using Metacello
     shell:
