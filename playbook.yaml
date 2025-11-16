@@ -598,22 +598,22 @@
     shell:
       cmd: mkdir -p pharo-local/iceberg/
       chdir: /home/kasm-default-profile/Pharo/images/RoassalPlayground/
-  - name: Create directory for Roassal3 in RoassalPlayground/pharo-local/iceberg
+  - name: Create ObjectProfile/ directory for Roassal3 in RoassalPlayground/pharo-local/iceberg
     shell:
-      cmd: mkdir -p Roassal3
+      cmd: mkdir ObjectProfile
       chdir: /home/kasm-default-profile/Pharo/images/RoassalPlayground/pharo-local/iceberg/
-  - name: Clone Roassal3 into RoassalPlayground/pharo-local/iceberg/Roassal3
+  - name: Clone Roassal3 into RoassalPlayground/pharo-local/iceberg/ObjectProfile/
     shell:
       cmd: git clone https://github.com/ObjectProfile/Roassal3.git
-      chdir: /home/kasm-default-profile/Pharo/images/RoassalPlayground/pharo-local/iceberg/Roassal3
-  - name: Checkout {{ roassal_version }} in Roassal repo
+      chdir: /home/kasm-default-profile/Pharo/images/RoassalPlayground/pharo-local/iceberg/ObjectProfile
+  - name: Checkout {{ roassal_version }} in Roassal3 repo
     shell:
       cmd: git checkout {{ roassal_version }}
-      chdir: /home/kasm-default-profile/Pharo/images/RoassalPlayground/pharo-local/iceberg/pharo-graphics/Roassal
+      chdir: /home/kasm-default-profile/Pharo/images/RoassalPlayground/pharo-local/iceberg/ObjectProfile/Roassal3/
       executable: /bin/bash
   - name: Load Full Roassal3 package from local repo into RoassalPlayground using Metacello
     shell:
-      cmd: ./pharo RoassalPlayground.image eval --save "[Metacello new baseline{{ ':' }} 'Roassal3'; repository{{ ':' }} 'gitlocal{{ ':' }}//./pharo-local/iceberg/pharo-graphics/Roassal/src'; load{{ ':' }} 'Full'] on{{ ':' }} MCMergeOrLoadWarning do{{ ':' }} [:warning | warning load ]"
+      cmd: ./pharo RoassalPlayground.image eval --save "[Metacello new baseline{{ ':' }} 'Roassal3'; repository{{ ':' }} 'gitlocal{{ ':' }}//./pharo-local/iceberg/ObjectProfile/Roassal3/src'; load{{ ':' }} 'Full'] on{{ ':' }} MCMergeOrLoadWarning do{{ ':' }} [:warning | warning load ]"
       chdir: /home/kasm-default-profile/Pharo/images/RoassalPlayground
       executable: /bin/bash
   - name: Create directory for svenvc/NeoCSV in RoassalPlayground/pharo-local/iceberg
