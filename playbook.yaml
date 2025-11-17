@@ -436,7 +436,7 @@
       src: /home/kasm-default-profile/install_files/freecad-{{ freecad_version }}.tar.gz
       dest: /home/kasm-default-profile/install_files
       remote_src: yes
-      creates: /home/kasm-default-profile/install_files/FreeCAD-{{ freecad_version }}/LICENSE
+      creates: /home/kasm-default-profile/install_files/FreeCAD-{{ freecad_version }}/src/Gui/Icons/freecad-icon-16.png
   - name: Create FreeCAD folder in /opt
     shell: mkdir -p /opt/FreeCAD
   - name: Copy FreeCAD icon to FreeCAD directory
