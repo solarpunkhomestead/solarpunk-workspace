@@ -35,6 +35,7 @@ This repo provides an Immutable-Infrastructure-as-Code (IIaC) workspace for Sola
     - [PrusaSlicer](https://github.com/prusa3d/PrusaSlicer) 2.7.0
     - [OpenSCAD](https://openscad.org/) 2021.01
     - [FPrime (tools installed via fprime-workspace-image)](https://github.com/fprime-community/fprime-workspace-image) v3.4.0-1.1.0
+    - [FreeCAD (with save/load project to/from directory support)](https://github.com/realthunder/FreeCAD/commit/1dfd9b93c9f9a1bfe56e1aa940b118c933b2de1c)
 
 ## Requirements
 
