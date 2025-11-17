@@ -428,20 +428,20 @@
       name: libfuse2
       update_cache: yes
   - name: Download FreeCAD {{ freecad_version }} source tarball
-    shell: wget https://github.com/realthunder/FreeCAD/archive/refs/tags/{{ freecad_version_tag }}.tar.gz -O /home/kasm-default-profile/install_files/freecad-{{ freecad_version }}.tar.gz
+    shell: wget https://github.com/realthunder/FreeCAD/archive/refs/tags/{{ freecad_version_tag }}.tar.gz -O /home/kasm-default-profile/install_files/FreeCAD-{{ freecad_version_tag }}.tar.gz
   - name: Download FreeCAD {{ freecad_version }} AppImage
     shell: wget https://github.com/realthunder/FreeCAD/releases/download/{{ freecad_version_tag }}/{{ freecad_appimage }} -O /home/kasm-default-profile/install_files/{{ freecad_appimage }}
   - name: Unarchive FreeCAD {{ freecad_version }} source tarball
     unarchive:
-      src: /home/kasm-default-profile/install_files/freecad-{{ freecad_version }}.tar.gz
+      src: /home/kasm-default-profile/install_files/FreeCAD-{{ freecad_version_tag }}.tar.gz
       dest: /home/kasm-default-profile/install_files
       remote_src: yes
-      creates: /home/kasm-default-profile/install_files/FreeCAD-{{ freecad_version }}/src/Gui/Icons/freecad-icon-16.png
+      creates: /home/kasm-default-profile/install_files/FreeCAD-{{ freecad_version_tag }}/src/Gui/Icons/freecad-icon-16.png
   - name: Create FreeCAD folder in /opt
     shell: mkdir -p /opt/FreeCAD
   - name: Copy FreeCAD icon to FreeCAD directory
     copy:
-      src: /home/kasm-default-profile/install_files/FreeCAD-{{ freecad_version }}/src/Gui/Icons/freecad-icon-16.png
+      src: /home/kasm-default-profile/install_files/FreeCAD-{{ freecad_version_tag }}/src/Gui/Icons/freecad-icon-16.png
       dest: /opt/FreeCAD
       remote_src: yes
   - name: Install FreeCAD {{ freecad_version }}
