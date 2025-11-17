@@ -366,12 +366,38 @@
 
   vars:
     openscad_version: "2021.01"
-    openscad_version_to_install: "{{ openscad_version }}-4build1"
+    openscad_appimage: "OpenSCAD-{{ openscad_version }}-x86_64.AppImage"
 
   tasks:
-  - name: Install openscad
-    apt:
-      name: "openscad={{ openscad_version_to_install }}"
+  - name: Download FreeCAD {{ openscad_version }} source tarball
+    shell: wget https://files.openscad.org/openscad-{{ openscad_version }}.src.tar.gz -O /home/kasm-default-profile/install_files/openscad-{{ openscad_version }}.tar.gz
+  - name: Download OpenSCAD {{ openscad_version }} AppImage
+    shell: wget https://files.openscad.org/{{ openscad_appimage }} -O /home/kasm-default-profile/install_files/{{ openscad_appimage }}
+  - name: Unarchive OpenSCAD {{ openscad_version }} source tarball
+    unarchive:
+      src: /home/kasm-default-profile/install_files/openscad-{{ openscad_version }}.tar.gz
+      dest: /home/kasm-default-profile/install_files
+      remote_src: yes
+      creates: /home/kasm-default-profile/install_files/openscad-{{ openscad_version }}/icons/openscad-48.png
+  - name: Create OpenSCAD folder in /opt
+    shell: mkdir -p /opt/OpenSCAD
+  - name: Copy OpenSCAD icon to OpenSCAD directory
+    copy:
+      src: /home/kasm-default-profile/install_files/openscad-{{ openscad_version }}/icons/openscad-48.png
+      dest: /opt/OpenSCAD
+      remote_src: yes
+  - name: Install OpenSCAD {{ openscad_version }}
+    copy:
+      src: /home/kasm-default-profile/install_files/{{ openscad_appimage }}
+      dest: /opt/OpenSCAD/{{ openscad_appimage }}
+      remote_src: yes
+      owner: root
+      group: root
+      mode: '0755'
+  - name: Create symlink for OpenSCAD AppImage in /usr/local/bin
+    shell: ln -srv /opt/OpenSCAD/{{ openscad_appimage }} /usr/local/bin/openscad
+  - name: Configure OpenSCAD desktop shortcut
+    shell: echo "[Desktop Entry]\nName=OpenSCAD\nGenericName=OpenSCAD\nExec=/usr/local/bin/openscad\nIcon=/opt/OpenSCAD/openscad-48.png\nTerminal=false\nType=Application\nStartupNotify=false\nCategories=Application;Development;" > /usr/share/applications/openscad.desktop
   - name: Get OpenSCAD version
     shell: openscad --info | grep 'OpenSCAD Version' | awk '{ print $3 '}
     register: installed_openscad_version
