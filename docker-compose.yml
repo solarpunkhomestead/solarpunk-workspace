@@ -3,7 +3,7 @@ version: "3.7"
 services:
   kasm:
     build: .
-    image: ghcr.io/mdrs-community/solarpunkhomestead/solarpunk-workspace:install-freecad-with-save-as-directory-support
+    image: ghcr.io/solarpunkhomestead/solarpunk-workspace:install-freecad-with-save-as-directory-support
     ports:
       - "6902:6901"
     environment:
