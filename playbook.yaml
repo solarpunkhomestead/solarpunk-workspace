@@ -399,7 +399,7 @@
   - name: Configure OpenSCAD desktop shortcut
     shell: echo "[Desktop Entry]\nName=OpenSCAD\nGenericName=OpenSCAD\nExec=/usr/local/bin/openscad\nIcon=/opt/OpenSCAD/openscad-48.png\nTerminal=false\nType=Application\nStartupNotify=false\nCategories=Application;Development;" > /usr/share/applications/openscad.desktop
   - name: Get OpenSCAD version
-    shell: openscad --info | grep 'OpenSCAD Version' | awk '{ print $3 '}
+    shell: openscad --info 2>/dev/null | grep 'OpenSCAD Version' | awk '{ print $3 '}
     register: installed_openscad_version
   - name: Display OpenSCAD version
     debug:
