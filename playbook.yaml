@@ -82,6 +82,27 @@
       msg: "{{ disk_usage.stdout }}"
 
 -
+  # Install AppImage dependencies
+  hosts: localhost
+  connection: local
+  tags:
+    - install_oshw_tools
+    - install_openscad
+    - install_freecad
+
+  tasks:
+  - name: Install kmod with apt
+    apt:
+      name: kmod
+      update_cache: yes
+  - name: add universe for installing FUSE 2.x # as per https://github.com/AppImage/AppImageKit/wiki/FUSE#install-fuse
+    shell: add-apt-repository universe
+  - name: Install FUSE 2.x with apt # as per https://github.com/AppImage/AppImageKit/wiki/FUSE#install-fuse and https://docs.appimage.org/user-guide/troubleshooting/fuse.html#setting-up-fuse-2-x-alongside-of-fuse-3-x-on-recent-ubuntu-22-04-debian-and-their-derivatives
+    apt:
+      name: libfuse2
+      update_cache: yes
+
+-
   # install keychain, git, and @capsulecorplab .vimrc and .gitconfig
   hosts: localhost
   connection: local
@@ -430,16 +451,6 @@
     freecad_appimage: "FreeCAD-Link-Stable-Linux-x86_64-py3.11-{{ freecad_version }}.AppImage"
 
   tasks:
-  - name: Install kmod with apt
-    apt:
-      name: kmod
-      update_cache: yes
-  - name: add universe for installing FUSE 2.x # as per https://github.com/AppImage/AppImageKit/wiki/FUSE#install-fuse
-    shell: add-apt-repository universe
-  - name: Install FUSE 2.x with apt # as per https://github.com/AppImage/AppImageKit/wiki/FUSE#install-fuse and https://docs.appimage.org/user-guide/troubleshooting/fuse.html#setting-up-fuse-2-x-alongside-of-fuse-3-x-on-recent-ubuntu-22-04-debian-and-their-derivatives
-    apt:
-      name: libfuse2
-      update_cache: yes
   - name: Download FreeCAD {{ freecad_version }} source tarball
     shell: wget https://github.com/realthunder/FreeCAD/archive/refs/tags/{{ freecad_version_tag }}.tar.gz -O /home/kasm-default-profile/install_files/FreeCAD-{{ freecad_version_tag }}.tar.gz
   - name: Download FreeCAD {{ freecad_version }} AppImage
