@@ -87,7 +87,7 @@
   connection: local
   tags:
     - install_oshw_tools
-    - install_openscad
+#    - install_openscad
     - install_freecad
 
   tasks:
@@ -387,6 +387,7 @@
 
   vars:
     openscad_version: "2021.01"
+    openscad_version_to_install: "{{ openscad_version }}-6build4"
 
   tasks:
   - name: Download OpenSCAD {{ openscad_version }} source tarball
@@ -409,11 +410,15 @@
       cmd: ./scripts/uni-get-dependencies.sh
       chdir: /home/kasm-default-profile/install_files/openscad-{{ openscad_version }}/
       executable: /bin/bash
-  - name: Build OpenSCAD {{ openscad_version }} from source
-    shell:
-      cmd: qmake && make
-      chdir: /home/kasm-default-profile/install_files/openscad-{{ openscad_version }}/
-      executable: /bin/bash
+  - name: Install OpenSCAD with Apt
+    apt:
+      name: "openscad={{ openscad_version_to_install }}"
+      update_cache: yes
+#  - name: Build OpenSCAD {{ openscad_version }} from source
+#    shell:
+#      cmd: qmake && make
+#      chdir: /home/kasm-default-profile/install_files/openscad-{{ openscad_version }}/
+#      executable: /bin/bash
   - name: Configure OpenSCAD desktop shortcut
     shell: echo "[Desktop Entry]\nName=OpenSCAD\nGenericName=OpenSCAD\nExec=/usr/local/bin/openscad\nIcon=/opt/OpenSCAD/openscad-48.png\nTerminal=false\nType=Application\nStartupNotify=false\nCategories=Application;Development;" > /usr/share/applications/openscad.desktop
   - name: Get OpenSCAD version
