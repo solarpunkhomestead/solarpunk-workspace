@@ -124,6 +124,10 @@
     apt:
       name: unzip
       update_cache: yes
+  - name: Install nix with Apt
+    apt:
+      name: nix-bin
+      update_cache: yes
   - name: Add git PPA
     shell: add-apt-repository ppa:git-core/ppa
   - name: Install git
