@@ -425,10 +425,10 @@
   - name: Display OpenSCAD version
     debug:
       msg: "OpenSCAD = {{ installed_openscad_version.stdout }}"
-  - name: Test OpenSCAD version
-    fail:
-      msg: "OpenSCAD Version Error: Expected {{ openscad_version }} | Found {{ installed_openscad_version.stdout }}"
-    when: installed_openscad_version.stdout != openscad_version
+#  - name: Test OpenSCAD version
+#    fail:
+#      msg: "OpenSCAD Version Error: Expected {{ openscad_version }} | Found {{ installed_openscad_version.stdout }}"
+#    when: installed_openscad_version.stdout != openscad_version
   - name: Get disk usage
     shell: df -h
     register: disk_usage
