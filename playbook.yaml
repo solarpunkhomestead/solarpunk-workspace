@@ -130,6 +130,8 @@
     apt:
       name: nix-bin
       update_cache: yes
+  - name: Upgrade nix
+    shell: nix upgrade-nix
   - name: Add git PPA
     shell: add-apt-repository ppa:git-core/ppa
   - name: Install git
