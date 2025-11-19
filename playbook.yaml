@@ -130,8 +130,17 @@
     apt:
       name: nix-bin
       update_cache: yes
-  - name: Upgrade nix
-    shell: nix upgrade-nix
+  - name: Record path to nix executable # https://github.com/NixOS/nix/issues/5473#issuecomment-1309181669
+    shell: nix_binary_path=$(readlink -f $(which nix))
+  - name: Record index of nix installation in profile # https://github.com/NixOS/nix/issues/5473#issuecomment-1309181669
+    shell: nix_profile_index=$(nix profile list | grep $(echo $nix_binary_path | sed 's|^/nix/store/\([^/]*\)/.*$|\1|g') | cut -d ' ' -f 1)
+  - name: Remove the symbolic link to the nix executable # https://github.com/NixOS/nix/issues/5473#issuecomment-1309181669
+    shell: nix profile remove $nix_profile_index
+  - name: Install the latest nix release # https://github.com/NixOS/nix/issues/5473#issuecomment-1309181669
+    shell: $nix_binary_path profile install nixpkgs#nix
+  - name: Display the new nix version # https://github.com/NixOS/nix/issues/5473#issuecomment-1309181669
+    shell: nix --version
+    register: installed_nix_version
   - name: Add git PPA
     shell: add-apt-repository ppa:git-core/ppa
   - name: Install git
@@ -157,6 +166,9 @@
       cmd: keychain -V 2> >(grep -i keychain) 2> >(sed 's/[[:alpha:]|(|[:space:]]//g') | fgrep '*' | sed 's/[*~://]//g'
       executable: /bin/bash
     register: installed_keychain_version
+  - name: Display nix version
+    debug:
+      msg: "nix = {{ installed_nix_version.stdout }}"
   - name: Display git and keychain versions
     debug:
       msg: "git = {{ installed_git_version.stdout }} | keychain = {{ installed_keychain_version.stdout }}"
