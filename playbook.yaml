@@ -130,15 +130,7 @@
     apt:
       name: nix-bin
       update_cache: yes
-  - name: Record path to nix executable # https://github.com/NixOS/nix/issues/5473#issuecomment-1309181669
-    shell: nix_binary_path=$(readlink -f $(which nix))
-  - name: Record index of nix installation in profile # https://github.com/NixOS/nix/issues/5473#issuecomment-1309181669
-    shell: nix_profile_index=$(nix profile list | grep $(echo $nix_binary_path | sed 's|^/nix/store/\([^/]*\)/.*$|\1|g') | cut -d ' ' -f 1)
-  - name: Remove the symbolic link to the nix executable # https://github.com/NixOS/nix/issues/5473#issuecomment-1309181669
-    shell: nix profile remove $nix_profile_index --extra-experimental-features nix-command --extra-experimental-features flakes
-  - name: Install the latest nix release # https://github.com/NixOS/nix/issues/5473#issuecomment-1309181669
-    shell: $nix_binary_path profile install nixpkgs#nix
-  - name: Display the new nix version # https://github.com/NixOS/nix/issues/5473#issuecomment-1309181669
+  - name: Display the new nix version
     shell: nix --version
     register: installed_nix_version
   - name: Add git PPA
@@ -410,49 +402,32 @@
     openscad_version_to_install: "{{ openscad_version }}-6build4"
 
   tasks:
-  - name: Download OpenSCAD {{ openscad_version }} source tarball
-    shell: wget https://files.openscad.org/openscad-{{ openscad_version }}.src.tar.gz -O /home/kasm-default-profile/install_files/openscad-{{ openscad_version }}.tar.gz
-  - name: Unarchive OpenSCAD {{ openscad_version }} source tarball
-    unarchive:
-      src: /home/kasm-default-profile/install_files/openscad-{{ openscad_version }}.tar.gz
-      dest: /home/kasm-default-profile/install_files
-      remote_src: yes
-      creates: /home/kasm-default-profile/install_files/openscad-{{ openscad_version }}/icons/openscad-48.png
-  - name: Create OpenSCAD folder in /opt
-    shell: mkdir -p /opt/OpenSCAD
-  - name: Copy OpenSCAD icon to OpenSCAD directory
-    copy:
-      src: /home/kasm-default-profile/install_files/openscad-{{ openscad_version }}/icons/openscad-48.png
-      dest: /opt/OpenSCAD
-      remote_src: yes
+  - name: Clone OpenSCAD into /opt
+    shell:
+      cmd: git clone https://github.com/openscad/openscad.git
+      chdir: /opt
+      executable: /bin/bash
+      creates: /opt/openscad/README.md
   - name: Install OpenSCAD {{ openscad_version }} dependencies
     shell:
       cmd: ./scripts/uni-get-dependencies.sh
-      chdir: /home/kasm-default-profile/install_files/openscad-{{ openscad_version }}/
+      chdir: /opt/openscad/
       executable: /bin/bash
-  - name: Install openscad with nix
-    shell: nix profile install nixpkgs#openscad --extra-experimental-features nix-command --extra-experimental-features flakes
-#  - name: Install OpenSCAD with Apt
-#    apt:
-#      name: "openscad={{ openscad_version_to_install }}"
-#      update_cache: yes
-#  - name: Build OpenSCAD {{ openscad_version }} from source
-#    shell:
-#      cmd: qmake && make
-#      chdir: /home/kasm-default-profile/install_files/openscad-{{ openscad_version }}/
-#      executable: /bin/bash
-  - name: Configure OpenSCAD desktop shortcut
-    shell: echo "[Desktop Entry]\nName=OpenSCAD\nGenericName=OpenSCAD\nExec=/usr/local/bin/openscad\nIcon=/opt/OpenSCAD/openscad-48.png\nTerminal=false\nType=Application\nStartupNotify=false\nCategories=Application;Development;" > /usr/share/applications/openscad.desktop
-  - name: Get OpenSCAD version
-    shell: openscad --info 2>/dev/null | grep 'OpenSCAD Version' | awk '{ print $3 '}
-    register: installed_openscad_version
-  - name: Display OpenSCAD version
-    debug:
-      msg: "OpenSCAD = {{ installed_openscad_version.stdout }}"
-  - name: Test OpenSCAD version
-    fail:
-      msg: "OpenSCAD Version Error: Expected {{ openscad_version }} | Found {{ installed_openscad_version.stdout }}"
-    when: installed_openscad_version.stdout != openscad_version
+  - name: Build openscad with nix
+    shell:
+      cmd: nix-shell --run "cd ../.. && cmake -B build -DEXPERIMENTAL=1 -DUSE_QT6=on && cmake --build build"
+      chdir: /opt/openscad/scripts/nix
+      executable: /bin/bash
+#  - name: Get OpenSCAD version
+#    shell: openscad --info 2>/dev/null | grep 'OpenSCAD Version' | awk '{ print $3 '}
+#    register: installed_openscad_version
+#  - name: Display OpenSCAD version
+#    debug:
+#      msg: "OpenSCAD = {{ installed_openscad_version.stdout }}"
+#  - name: Test OpenSCAD version
+#    fail:
+#      msg: "OpenSCAD Version Error: Expected {{ openscad_version }} | Found {{ installed_openscad_version.stdout }}"
+#    when: installed_openscad_version.stdout != openscad_version
   - name: Get disk usage
     shell: df -h
     register: disk_usage
