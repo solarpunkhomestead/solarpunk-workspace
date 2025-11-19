@@ -135,7 +135,7 @@
   - name: Record index of nix installation in profile # https://github.com/NixOS/nix/issues/5473#issuecomment-1309181669
     shell: nix_profile_index=$(nix profile list | grep $(echo $nix_binary_path | sed 's|^/nix/store/\([^/]*\)/.*$|\1|g') | cut -d ' ' -f 1)
   - name: Remove the symbolic link to the nix executable # https://github.com/NixOS/nix/issues/5473#issuecomment-1309181669
-    shell: nix profile remove $nix_profile_index
+    shell: nix profile remove $nix_profile_index --extra-experimental-features nix-command --extra-experimental-features flakes
   - name: Install the latest nix release # https://github.com/NixOS/nix/issues/5473#issuecomment-1309181669
     shell: $nix_binary_path profile install nixpkgs#nix
   - name: Display the new nix version # https://github.com/NixOS/nix/issues/5473#issuecomment-1309181669
