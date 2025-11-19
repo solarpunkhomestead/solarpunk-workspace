@@ -414,10 +414,12 @@
       cmd: ./scripts/uni-get-dependencies.sh
       chdir: /home/kasm-default-profile/install_files/openscad-{{ openscad_version }}/
       executable: /bin/bash
-  - name: Install OpenSCAD with Apt
-    apt:
-      name: "openscad={{ openscad_version_to_install }}"
-      update_cache: yes
+  - name: Install openscad with nix
+    shell: nix profile install nixpkgs#openscad --extra-experimental-features nix-command --extra-experimental-features flakes
+#  - name: Install OpenSCAD with Apt
+#    apt:
+#      name: "openscad={{ openscad_version_to_install }}"
+#      update_cache: yes
 #  - name: Build OpenSCAD {{ openscad_version }} from source
 #    shell:
 #      cmd: qmake && make
