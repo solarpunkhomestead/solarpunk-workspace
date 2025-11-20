@@ -130,7 +130,9 @@
     apt:
       name: nix-bin
       update_cache: yes
-  - name: Display the new nix version
+  - name: set NIX_PATH
+    shell: export NIX_PATH=nixpkgs=https://github.com/NixOS/nixpkgs/archive/refs/tags/25.05.tar.gz
+  - name: Get new nix version
     shell: nix --version
     register: installed_nix_version
   - name: Add git PPA
