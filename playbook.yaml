@@ -103,6 +103,30 @@
       update_cache: yes
 
 -
+  # Install java
+  hosts: localhost
+  connection: local
+  tags:
+    - install_generator_plantuml
+    - install_utilities
+    - install_oshw_tools
+
+  vars:
+    jdk_version: 2:1.21-75
+
+  tasks:
+  - name: Install JDK
+    apt:
+      name: "default-jdk={{ jdk_version }}+exp1"
+      update_cache: yes
+  - name: Get JDK Version
+    shell: java --version | grep -m 1 -i openjdk
+    register: installed_jdk_version
+  - name: Display JDK version
+    debug:
+      msg: "JDK = {{ installed_jdk_version.stdout }}"
+
+-
   # install keychain, git, and @capsulecorplab .vimrc and .gitconfig
   hosts: localhost
   connection: local
@@ -120,6 +144,7 @@
     keychain_version: "2.8.5"
     keychain_version_to_install: "{{ keychain_version }}-2"
     keychain_version_expected: "{{ keychain_version }}.."
+    gradle_version: "8.7"
 
   tasks:
   - name: Install unzip
@@ -190,6 +215,37 @@
   - name: Display disk usage
     debug:
       msg: "{{ disk_usage.stdout }}"
+  - name: Join gradle v{{ gradle_version }} zip file from split files
+    shell: cat /home/kasm-default-profile/install_files/gradle-{{ gradle_version }}-bin.zip.parta* > /home/kasm-default-profile/install_files/gradle-{{ gradle_version }}-bin.zip
+  - name: Create gradle directory
+    file:
+      path: /opt/gradle
+      state: directory
+      mode: '0755'
+  - name: Unzip gradle binary
+    unarchive:
+      src: /home/kasm-default-profile/install_files/gradle-{{ gradle_version }}-bin.zip
+      dest: /opt/gradle/
+      remote_src: yes
+      creates: /opt/gradle/gradle-{{ gradle_version }}/LICENSE
+  - name: Create symlink to gradle in /usr/local/bin/
+    file:
+      src: /opt/gradle/gradle-{{ gradle_version }}/bin/gradle
+      dest: /usr/local/bin/gradle
+      owner: root
+      group: root
+      state: link
+  - name: Get gradle version
+    shell: gradle --version | grep -v Welcome | grep Gradle | awk '{ print $2 }'
+    register: installed_gradle_version
+  - name: Display gradle versions
+    debug:
+      msg: "gradle = {{ installed_gradle_version.stdout }}"
+  - name: Test gradle version
+    fail:
+      msg: "Gradle Version Error: Expected {{ gradle_version }} | Found {{ installed_gradle_version.stdout }}"
+    when: installed_gradle_version.stdout != gradle_version
+
 -
   # Install NodeJS Tools
   hosts: localhost
