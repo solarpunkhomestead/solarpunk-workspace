@@ -112,12 +112,12 @@
     - install_oshw_tools
 
   vars:
-    jdk_version: 2:1.21-75
+    jdk_version_to_install: 2:1.11-72build2
 
   tasks:
   - name: Install JDK
     apt:
-      name: "default-jdk={{ jdk_version }}+exp1"
+      name: "default-jdk={{ jdk_version_to_install }}"
       update_cache: yes
   - name: Get JDK Version
     shell: java --version | grep -m 1 -i openjdk
