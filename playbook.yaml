@@ -540,6 +540,13 @@
   - name: Get disk usage
     shell: df -h
     register: disk_usage
+  - name: Create FreeCAD modules directory in /usr/share/freecad/Mod
+    shell: mkdir -p /usr/share/freecad/Mod
+  - name: Clone Assembly4 (FreeCAD workbench) into FreeCAD modules directory
+    shell:
+      cmd: git clone https://codeberg.org/Zolko/Assembly4.git
+      chdir: /usr/share/freecad/Mod
+      executable: /bin/bash
   - name: Display disk usage
     debug:
       msg: "{{ disk_usage.stdout }}"
