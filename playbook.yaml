@@ -139,8 +139,8 @@
     - install_oshw_tools
 
   vars:
-    git_version: "2.34.1"
-    git_version_to_install: "1:{{ git_version }}-0ppa1~ubuntu22.04.1"
+    nixos_release: "26.05"
+    git_version: "2.43.0"
     keychain_version: "2.8.5"
     keychain_version_to_install: "{{ keychain_version }}-2"
     keychain_version_expected: "{{ keychain_version }}.."
@@ -160,23 +160,16 @@
   - name: Get new nix version
     shell: nix --version
     register: installed_nix_version
-  - name: Add git PPA
-    shell: add-apt-repository ppa:git-core/ppa
-  - name: Install git
-    apt:
-      name: git
+  - name: Add kasm-user to nix-users group
+    shell: usermod -aG nix-users kasm-user
+  - name: Install git {{ git_version }} with nix
+    shell: nix profile install nixpkgs/release-{{ nixos_release }}#git --extra-experimental-features nix-command --extra-experimental-features flakes
   - name: Install Git Bash Completion
-    apt:
-      name: bash-completion
-      update_cache: yes
+    shell: nix profile install nixpkgs/release-{{ nixos_release }}#bash-completion --extra-experimental-features nix-command --extra-experimental-features flakes
   - name: Install Keychain
-    apt:
-      name: "keychain={{ keychain_version_to_install }}"
-      update_cache: yes
+    shell: nix profile install nixpkgs/release-{{ nixos_release }}#keychain --extra-experimental-features nix-command --extra-experimental-features flakes
   - name: install ping
-    apt:
-      name: iputils-ping
-      update_cache: yes
+    shell: nix profile install nixpkgs#unixtools.ping --extra-experimental-features nix-command --extra-experimental-features flakes
   - name: Get git version
     shell: git version | sed 's/[[:alpha:]|(|[:space:]]//g'
     register: installed_git_version
