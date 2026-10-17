@@ -170,6 +170,11 @@
     shell: nix profile install nixpkgs/release-{{ nixos_release }}#keychain --extra-experimental-features nix-command --extra-experimental-features flakes
   - name: install ping
     shell: nix profile install nixpkgs#unixtools.ping --extra-experimental-features nix-command --extra-experimental-features flakes
+  - name: Get keychain version
+    shell:
+      cmd: keychain -V 2> >(grep -i keychain) 2> >(sed 's/[[:alpha:]|(|[:space:]]//g') | fgrep '*' | sed 's/[*~://]//g'
+      executable: /bin/bash
+    register: installed_keychain_version
   - name: Get git version
     shell: git version | sed 's/[[:alpha:]|(|[:space:]]//g'
     register: installed_git_version
