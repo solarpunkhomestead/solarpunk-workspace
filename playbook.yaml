@@ -161,6 +161,8 @@
   - name: Get nix version
     shell: nix --version
     register: installed_nix_version
+  - name: chmod 755 /nix/var/nix/profiles/per-user
+    shell: chmod 755 /nix/var/nix/profiles/per-user
   - name: Add kasm-user to nix-users group
     shell: usermod -aG nix-users kasm-user
   - name: Install git {{ git_version }} with nix
