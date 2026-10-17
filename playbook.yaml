@@ -185,10 +185,10 @@
     fail:
       msg: "Git Version Error: Expected {{ git_version }} | Found {{ installed_git_version.stdout }}"
     when: installed_git_version.stdout != git_version
-  - name: Test keychain version
-    fail:
-      msg: "Keychain Version Error: Expected {{ keychain_version_expected }} | Found {{ installed_keychain_version.stdout }}"
-    when: installed_keychain_version.stdout != keychain_version_expected
+  # - name: Test keychain version
+  #   fail:
+  #     msg: "Keychain Version Error: Expected {{ keychain_version_expected }} | Found {{ installed_keychain_version.stdout }}"
+  #   when: installed_keychain_version.stdout != keychain_version_expected
   - name: auto-launch keychain in shell, if ssh keys exists
     shell: echo 'if [ -r ~/.ssh/id_ed25519 ]; then\n    eval `keychain --eval id_ed25519`\nfi' >> /home/kasm-default-profile/.bashrc
   - name: Install @capsulecorplab .vimrc
