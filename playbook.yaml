@@ -155,32 +155,26 @@
     apt:
       name: nix-bin
       update_cache: yes
-  - name: set NIX_PATH
-    shell: export NIX_PATH=nixpkgs=https://github.com/NixOS/nixpkgs/archive/refs/tags/25.05.tar.gz
   - name: Get new nix version
     shell: nix --version
     register: installed_nix_version
+  - name: Clone nixpkgs (version nixos-{{ nixos_release }}) repository locally
+    become: yes
+    git:
+      repo: 'https://github.com/NixOS/nixpkgs.git'
+      dest: /opt/nixpkgs-{{ nixos_release }}
+      version: nixos-{{ nixos_release }}
+      force: yes
   - name: Add kasm-user to nix-users group
     shell: usermod -aG nix-users kasm-user
   - name: Install git {{ git_version }} with nix
-    shell: nix profile install nixpkgs/release-{{ nixos_release }}#git --extra-experimental-features nix-command --extra-experimental-features flakes
+    shell: nix-env -f /opt/nixpkgs-{{ nixos_release }} -iA git --extra-experimental-features nix-command --extra-experimental-features flakes
   - name: Install Git Bash Completion
-    shell: nix profile install nixpkgs/release-{{ nixos_release }}#bash-completion --extra-experimental-features nix-command --extra-experimental-features flakes
+    shell: nix-env -f /opt/nixpkgs-{{ nixos_release }} -iA bash-completion --extra-experimental-features nix-command --extra-experimental-features flakes
   - name: Install Keychain
-    shell: nix profile install nixpkgs/release-{{ nixos_release }}#keychain --extra-experimental-features nix-command --extra-experimental-features flakes
+    shell: nix-env -f /opt/nixpkgs-{{ nixos_release }} -iA keychain --extra-experimental-features nix-command --extra-experimental-features flakes
   - name: install ping
-    shell: nix profile install nixpkgs#unixtools.ping --extra-experimental-features nix-command --extra-experimental-features flakes
-  - name: Get git version
-    shell: git version | sed 's/[[:alpha:]|(|[:space:]]//g'
-    register: installed_git_version
-  - name: Get keychain version
-    shell:
-      cmd: keychain -V 2> >(grep -i keychain) 2> >(sed 's/[[:alpha:]|(|[:space:]]//g') | fgrep '*' | sed 's/[*~://]//g'
-      executable: /bin/bash
-    register: installed_keychain_version
-  - name: Display nix version
-    debug:
-      msg: "nix = {{ installed_nix_version.stdout }}"
+    shell: nix-env -f /opt/nixpkgs-{{ nixos_release }} -iA unixtools.ping --extra-experimental-features nix-command --extra-experimental-features flakes
   - name: Display git and keychain versions
     debug:
       msg: "git = {{ installed_git_version.stdout }} | keychain = {{ installed_keychain_version.stdout }}"
