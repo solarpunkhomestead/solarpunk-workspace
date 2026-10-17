@@ -112,7 +112,7 @@
     - install_oshw_tools
 
   vars:
-    jdk_version_to_install: 2:1.11-72build2
+    jdk_version: 2:1.21-75
 
   tasks:
   - name: Install JDK
