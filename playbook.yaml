@@ -177,6 +177,9 @@
     shell: nix-env -f /opt/nixpkgs-{{ nixos_release }} -iA keychain --extra-experimental-features nix-command --extra-experimental-features flakes
   - name: install ping
     shell: nix-env -f /opt/nixpkgs-{{ nixos_release }} -iA unixtools.ping --extra-experimental-features nix-command --extra-experimental-features flakes
+  - name: Get git version
+    shell: git version | sed 's/[[:alpha:]|(|[:space:]]//g'
+    register: installed_git_version
   - name: Display git and keychain versions
     debug:
       msg: "git = {{ installed_git_version.stdout }} | keychain = {{ installed_keychain_version.stdout }}"
