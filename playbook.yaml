@@ -515,22 +515,31 @@
   tasks:
   - name: Install freecad with nix
     shell: nix profile install nixpkgs/release-{{ nixos_release }}#freecad --extra-experimental-features nix-command --extra-experimental-features flakes
-  - name: Install patchelf
-    apt:
-      name: patchelf
-      update_cache: yes
+  - name: Find path to nix libc.so.6
+    shell: find /nix/store -name libc.so.6 | grep glibc | head -n 1
+    register: nix_libc_path
+  - name: Find path to nix glibc lib directory
+    shell: find /nix/store -name lib -type d | grep glibc | head -n 1
+    register: nix_glibc_lib
   - name: Find FreeCAD binary path
     shell: find $HOME/.nix-profile/bin -name freecad | head -n 1
     register: freecad_bin
-  - name: Patch FreeCAD interpreter
-    shell: patchelf --set-interpreter /lib64/ld-linux-x86-64.so.2 {{ freecad_bin.stdout }}
   - name: Create FreeCAD wrapper script
     copy:
       dest: /usr/local/bin/freecad
       mode: '0755'
       content: |
         #!/bin/sh
-        export NIX_LD_LIBRARY_PATH=$(find /nix/store -name lib -type d | grep glibc | head -n 1)
+        # 1. Force the Nix Glibc to be the primary provider of symbols
+        export LD_PRELOAD="{{ nix_libc_path.stdout }}"
+
+        # 2. Tell the loader where to find the rest of the Nix libraries
+        export LD_LIBRARY_PATH="{{ nix_glibc_lib.stdout }}:$LD_LIBRARY_PATH"
+
+        # 3. Keep nix-ld variable just in case
+        export NIX_LD_LIBRARY_PATH="{{ nix_glibc_lib.stdout }}"
+
+        # 4. Execute the patched binary
         exec "{{ freecad_bin.stdout }}" "$@"
   # - name: Download FreeCAD {{ freecad_version }} source tarball
   #   shell: wget https://github.com/realthunder/FreeCAD/archive/refs/tags/{{ freecad_version_tag }}.tar.gz -O /home/kasm-default-profile/install_files/FreeCAD-{{ freecad_version_tag }}.tar.gz
