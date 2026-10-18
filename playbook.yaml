@@ -139,7 +139,7 @@
     - install_pharo
     - install_openscad
     - install_oshw_tools
-    - install_freecad
+    # - install_freecad
 
   vars:
     nixos_release: "26.05"
@@ -507,79 +507,76 @@
     - install_oshw_tools
 
   vars:
-    nixos_release: "26.05"
-  #   freecad_version: "20241003"
-  #   freecad_version_tag: "{{ freecad_version }}stable"
-  #   freecad_appimage: "FreeCAD-Link-Stable-Linux-x86_64-py3.11-{{ freecad_version }}.AppImage"
+  #  nixos_release: "26.05"
+    freecad_version: "20241003"
+    freecad_version_tag: "{{ freecad_version }}stable"
+    freecad_appimage: "FreeCAD-Link-Stable-Linux-x86_64-py3.11-{{ freecad_version }}.AppImage"
 
   tasks:
-  - name: Install freecad with nix
-    shell: nix profile install nixpkgs/release-{{ nixos_release }}#freecad --extra-experimental-features nix-command --extra-experimental-features flakes
-  - name: Find path to nix libc.so.6
-    shell: find /nix/store -name libc.so.6 | grep glibc | head -n 1
-    register: nix_libc_path
-  - name: Find path to nix glibc lib directory
-    shell: find /nix/store -name lib -type d | grep glibc | head -n 1
-    register: nix_glibc_lib
-  - name: Find FreeCAD binary path
-    shell: find $HOME/.nix-profile/bin -name freecad | head -n 1
-    register: freecad_bin
-  - name: Create FreeCAD wrapper script
-    copy:
-      dest: /usr/local/bin/freecad
-      mode: '0755'
-      content: |
-        #!/bin/sh
-        # 1. Force the Nix Glibc to be the primary provider of symbols
-        export LD_PRELOAD="{{ nix_libc_path.stdout }}"
-
-        # 2. Tell the loader where to find the rest of the Nix libraries
-        export LD_LIBRARY_PATH="{{ nix_glibc_lib.stdout }}:$LD_LIBRARY_PATH"
-
-        # 3. Keep nix-ld variable just in case
-        export NIX_LD_LIBRARY_PATH="{{ nix_glibc_lib.stdout }}"
-
-        # 4. Execute the patched binary
-        exec "{{ freecad_bin.stdout }}" "$@"
-  # - name: Download FreeCAD {{ freecad_version }} source tarball
-  #   shell: wget https://github.com/realthunder/FreeCAD/archive/refs/tags/{{ freecad_version_tag }}.tar.gz -O /home/kasm-default-profile/install_files/FreeCAD-{{ freecad_version_tag }}.tar.gz
-  # - name: Download FreeCAD {{ freecad_version }} AppImage
-  #   shell: wget https://github.com/realthunder/FreeCAD/releases/download/{{ freecad_version_tag }}/{{ freecad_appimage }} -O /home/kasm-default-profile/install_files/{{ freecad_appimage }}
-  # - name: Unarchive FreeCAD {{ freecad_version }} source tarball
-  #   unarchive:
-  #     src: /home/kasm-default-profile/install_files/FreeCAD-{{ freecad_version_tag }}.tar.gz
-  #     dest: /home/kasm-default-profile/install_files
-  #     remote_src: yes
-  #     creates: /home/kasm-default-profile/install_files/FreeCAD-{{ freecad_version_tag }}/src/Gui/Icons/freecad-icon-16.png
-  # - name: Create FreeCAD folder in /opt
-  #   shell: mkdir -p /opt/FreeCAD
-  # - name: Copy FreeCAD icon to FreeCAD directory
+  # - name: Install freecad with nix # broken; nix installed FreeCAD encounters glibc incompatibilities with host machine
+  #   shell: nix profile install nixpkgs/release-{{ nixos_release }}#freecad --extra-experimental-features nix-command --extra-experimental-features flakes
+  # - name: Find path to nix libc.so.6
+  #   shell: find /nix/store -name libc.so.6 | grep glibc | head -n 1
+  #   register: nix_libc_path
+  # - name: Find path to nix glibc lib directory
+  #   shell: find /nix/store -name lib -type d | grep glibc | head -n 1
+  #   register: nix_glibc_lib
+  # - name: Find FreeCAD binary path
+  #   shell: find $HOME/.nix-profile/bin -name freecad | head -n 1
+  #   register: freecad_bin
+  # - name: Create FreeCAD wrapper script
   #   copy:
-  #     src: /home/kasm-default-profile/install_files/FreeCAD-{{ freecad_version_tag }}/src/Gui/Icons/freecad-icon-16.png
-  #     dest: /opt/FreeCAD
-  #     remote_src: yes
-  # - name: Install FreeCAD {{ freecad_version }}
-  #   copy:
-  #     src: /home/kasm-default-profile/install_files/{{ freecad_appimage }}
-  #     dest: /opt/FreeCAD/{{ freecad_appimage }}
-  #     remote_src: yes
-  #     owner: root
-  #     group: root
+  #     dest: /usr/local/bin/freecad
   #     mode: '0755'
-  # - name: Create symlink for FreeCAD AppImage in /usr/local/bin
-  #   shell: ln -srv /opt/FreeCAD/{{ freecad_appimage }} /usr/local/bin/freecad
-  # - name: Configure FreeCAD desktop shortcut
-  #   shell: echo "[Desktop Entry]\nName=FreeCAD\nGenericName=FreeCAD\nExec=/usr/local/bin/freecad\nIcon=/opt/FreeCAD/freecad-icon-16.png\nTerminal=false\nType=Application\nStartupNotify=false\nCategories=Application;Development;" > /usr/share/applications/freecad.desktop
-  # - name: Get disk usage
-  #   shell: df -h
-  #   register: disk_usage
-  # - name: Create FreeCAD modules directory in /usr/share/freecad/Mod
-  #   shell: mkdir -p /usr/share/freecad/Mod
-  # - name: Clone Assembly4 (FreeCAD workbench) into FreeCAD modules directory
-  #   shell:
-  #     cmd: git clone https://codeberg.org/Zolko/Assembly4.git
-  #     chdir: /usr/share/freecad/Mod
-  #     executable: /bin/bash
+  #     content: |
+  #       #!/bin/sh
+  #       # 1. Force the Nix Glibc to be the primary provider of symbols
+  #       export LD_PRELOAD="{{ nix_libc_path.stdout }}"
+  #       # 2. Tell the loader where to find the rest of the Nix libraries
+  #       export LD_LIBRARY_PATH="{{ nix_glibc_lib.stdout }}:$LD_LIBRARY_PATH"
+  #       # 3. Keep nix-ld variable just in case
+  #       export NIX_LD_LIBRARY_PATH="{{ nix_glibc_lib.stdout }}"
+  #       # 4. Execute the patched binary
+  #       exec "{{ freecad_bin.stdout }}" "$@"
+  - name: Download FreeCAD {{ freecad_version }} source tarball
+    shell: wget https://github.com/realthunder/FreeCAD/archive/refs/tags/{{ freecad_version_tag }}.tar.gz -O /home/kasm-default-profile/install_files/FreeCAD-{{ freecad_version_tag }}.tar.gz
+  - name: Download FreeCAD {{ freecad_version }} AppImage
+    shell: wget https://github.com/realthunder/FreeCAD/releases/download/{{ freecad_version_tag }}/{{ freecad_appimage }} -O /home/kasm-default-profile/install_files/{{ freecad_appimage }}
+  - name: Unarchive FreeCAD {{ freecad_version }} source tarball
+    unarchive:
+      src: /home/kasm-default-profile/install_files/FreeCAD-{{ freecad_version_tag }}.tar.gz
+      dest: /home/kasm-default-profile/install_files
+      remote_src: yes
+      creates: /home/kasm-default-profile/install_files/FreeCAD-{{ freecad_version_tag }}/src/Gui/Icons/freecad-icon-16.png
+  - name: Create FreeCAD folder in /opt
+    shell: mkdir -p /opt/FreeCAD
+  - name: Copy FreeCAD icon to FreeCAD directory
+    copy:
+      src: /home/kasm-default-profile/install_files/FreeCAD-{{ freecad_version_tag }}/src/Gui/Icons/freecad-icon-16.png
+      dest: /opt/FreeCAD
+      remote_src: yes
+  - name: Install FreeCAD {{ freecad_version }}
+    copy:
+      src: /home/kasm-default-profile/install_files/{{ freecad_appimage }}
+      dest: /opt/FreeCAD/{{ freecad_appimage }}
+      remote_src: yes
+      owner: root
+      group: root
+      mode: '0755'
+  - name: Create symlink for FreeCAD AppImage in /usr/local/bin
+    shell: ln -srv /opt/FreeCAD/{{ freecad_appimage }} /usr/local/bin/freecad
+  - name: Configure FreeCAD desktop shortcut
+    shell: echo "[Desktop Entry]\nName=FreeCAD\nGenericName=FreeCAD\nExec=/usr/local/bin/freecad\nIcon=/opt/FreeCAD/freecad-icon-16.png\nTerminal=false\nType=Application\nStartupNotify=false\nCategories=Application;Development;" > /usr/share/applications/freecad.desktop
+  - name: Get disk usage
+    shell: df -h
+    register: disk_usage
+  - name: Create FreeCAD modules directory in /usr/share/freecad/Mod
+    shell: mkdir -p /usr/share/freecad/Mod
+  - name: Clone Assembly4 (FreeCAD workbench) into FreeCAD modules directory
+    shell:
+      cmd: git clone https://codeberg.org/Zolko/Assembly4.git
+      chdir: /usr/share/freecad/Mod
+      executable: /bin/bash
   - name: Display disk usage
     debug:
       msg: "{{ disk_usage.stdout }}"
