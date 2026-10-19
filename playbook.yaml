@@ -161,19 +161,19 @@
   - name: Get nix version
     shell: nix --version
     register: installed_nix_version
-  - name: Install nix-ld
-    shell: nix profile install nixpkgs/release-{{ nixos_release }}#nix-ld --extra-experimental-features nix-command --extra-experimental-features flakes
-  - name: Setup nix-ld system symlink
-    shell: |
-      BIN=$(find /nix/store -name nix-ld -type f | head -n 1)
-      ln -sf $BIN /sbin/nix-ld
-  - name: Setup glibc library path for linker
-    shell: |
-      LIB=$(find /nix/store -name lib -type d | grep glibc | head -n 1)
-      echo $LIB > /etc/ld.so.conf.d/nix-ld.conf
-      ldconfig
-  - name: chmod 755 /nix/var/nix/profiles/per-user
-    shell: chmod 755 /nix/var/nix/profiles/per-user
+  # - name: Install nix-ld
+  #   shell: nix profile install nixpkgs/release-{{ nixos_release }}#nix-ld --extra-experimental-features nix-command --extra-experimental-features flakes
+  # - name: Setup nix-ld system symlink
+  #   shell: |
+  #     BIN=$(find /nix/store -name nix-ld -type f | head -n 1)
+  #     ln -sf $BIN /sbin/nix-ld
+  # - name: Setup glibc library path for linker
+  #   shell: |
+  #     LIB=$(find /nix/store -name lib -type d | grep glibc | head -n 1)
+  #     echo $LIB > /etc/ld.so.conf.d/nix-ld.conf
+  #     ldconfig
+  # - name: chmod 755 /nix/var/nix/profiles/per-user
+  #   shell: chmod 755 /nix/var/nix/profiles/per-user
   - name: Add kasm-user to nix-users group
     shell: usermod -aG nix-users kasm-user
   - name: Install git {{ git_version }} with nix
