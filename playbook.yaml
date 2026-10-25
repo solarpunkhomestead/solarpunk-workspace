@@ -136,6 +136,7 @@
     - install_utilities
     - install_vscode
     - install_python_packages
+    - install_openscad
 
   tasks:
   - name: Add dev user
@@ -173,7 +174,6 @@
     git_version: "2.54.0"
     keychain_version: "2.9.8"
     keychain_version_expected: "{{ keychain_version }}."
-    gradle_version: "8.7"
 
   tasks:
   - name: Download nix tarball {{ nix_version }}
@@ -253,6 +253,22 @@
   - name: Display disk usage
     debug:
       msg: "{{ disk_usage.stdout }}"
+
+-
+  # install gradle
+  hosts: localhost
+  connection: local
+  gather_facts: yes
+  tags:
+    - install_utilities
+
+  vars:
+    nixpkgs_branch: "nixos-26.05"
+    nix_bin_dir: /nix/var/nix/profiles/default/bin
+    nix_bin_path: "{{ nix_bin_dir }}/nix"
+    gradle_version: "8.7"
+
+  tasks:
   - name: Join gradle v{{ gradle_version }} zip file from split files
     shell: cat /home/kasm-default-profile/install_files/gradle-{{ gradle_version }}-bin.zip.parta* > /home/kasm-default-profile/install_files/gradle-{{ gradle_version }}-bin.zip
   - name: Create gradle directory
@@ -609,33 +625,22 @@
     - install_openscad
 
   vars:
+    nixpkgs_branch: "nixos-26.05"
+    nix_bin_dir: /nix/var/nix/profiles/default/bin
+    nix_bin_path: "{{ nix_bin_dir }}/nix"
     openscad_version: "2021.01"
     openscad_version_to_install: "{{ openscad_version }}-6build4"
 
   tasks:
-  - name: Clone OpenSCAD into /opt
-    shell:
-      cmd: git clone https://github.com/openscad/openscad.git
-      chdir: /opt
-      executable: /bin/bash
-      creates: /opt/openscad/README.md
-  - name: Install OpenSCAD {{ openscad_version }} dependencies
-    shell:
-      cmd: ./scripts/uni-get-dependencies.sh
-      chdir: /opt/openscad/
-      executable: /bin/bash
-  - name: Install openscad w/ Apt
-    apt:
-      name: openscad
-      update_cache: yes
-#  - name: Build openscad with nix
-#    shell:
-#      cmd: nix-shell --run "cd ../.. && cmake -B build -DEXPERIMENTAL=1 -DUSE_QT6=on && cmake --build build"
-#      chdir: /opt/openscad/scripts/nix
-#      executable: /bin/bash
+  - name: Install openscad  with nix
+    shell: "{{ nix_bin_path }} profile install nixpkgs/{{ nixpkgs_branch }}#openscad --extra-experimental-features 'nix-command flakes'"
+    environment:
+      LD_LIBRARY_PATH: ""
   - name: Get OpenSCAD version
-    shell: openscad --info 2>/dev/null | grep 'OpenSCAD Version' | awk '{ print $3 '}
+    shell: "{{ nix_bin_dir }}/openscad --info 2>/dev/null | grep 'OpenSCAD Version' | awk '{ print $3 '}"
     register: installed_openscad_version
+    environment:
+      LD_LIBRARY_PATH: ""
   - name: Display OpenSCAD version
     debug:
       msg: "OpenSCAD = {{ installed_openscad_version.stdout }}"
