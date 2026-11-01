@@ -82,27 +82,6 @@
       msg: "{{ disk_usage.stdout }}"
 
 -
-  # Install AppImage dependencies
-  hosts: localhost
-  connection: local
-  tags:
-    - install_oshw_tools
-#    - install_openscad
-    - install_freecad
-
-  tasks:
-  - name: Install kmod with apt
-    apt:
-      name: kmod
-      update_cache: yes
-  - name: add universe for installing FUSE 2.x # as per https://github.com/AppImage/AppImageKit/wiki/FUSE#install-fuse
-    shell: add-apt-repository universe
-  - name: Install FUSE 2.x with apt # as per https://github.com/AppImage/AppImageKit/wiki/FUSE#install-fuse and https://docs.appimage.org/user-guide/troubleshooting/fuse.html#setting-up-fuse-2-x-alongside-of-fuse-3-x-on-recent-ubuntu-22-04-debian-and-their-derivatives
-    apt:
-      name: libfuse2
-      update_cache: yes
-
--
   # Install java
   hosts: localhost
   connection: local
@@ -137,7 +116,6 @@
     - install_vscode
     - install_python_packages
     - install_openscad
-    - install_freecad
     - install_oshw_tools
 
   tasks:
@@ -164,7 +142,6 @@
     - install_fprime
     - install_pharo
     - install_openscad
-    - install_freecad
     - install_oshw_tools
 
   vars:
@@ -410,7 +387,6 @@
     - install_vscode
     - install_utilities
     - install_openscad
-    - install_freecad
     - install_oshw_tools
 
   tasks:
@@ -658,59 +634,6 @@
   - name: Get disk usage
     shell: df -h
     register: disk_usage
-  - name: Display disk usage
-    debug:
-      msg: "{{ disk_usage.stdout }}"
-
--
-  # install FreeCAD
-  hosts: localhost
-  connection: local
-  gather_facts: yes
-  tags:
-    - install_freecad
-    - install_oshw_tools
-
-  vars:
-    nixpkgs_branch: "nixos-26.05"
-    nix_bin_dir: /nix/var/nix/profiles/default/bin
-    nix_bin_path: "{{ nix_bin_dir }}/nix"
-    freecad_version: "20241003"
-    freecad_version_tag: "{{ freecad_version }}stable"
-    freecad_appimage: "FreeCAD-Link-Stable-Linux-x86_64-py3.11-{{ freecad_version }}.AppImage"
-
-  tasks:
-  - name: Download FreeCAD {{ freecad_version }} source tarball
-    shell: wget https://github.com/realthunder/FreeCAD/archive/refs/tags/{{ freecad_version_tag }}.tar.gz -O /home/kasm-default-profile/install_files/FreeCAD-{{ freecad_version_tag }}.tar.gz
-  - name: Install FreeCAD  with nix
-    shell: "{{ nix_bin_path }} profile install nixpkgs/{{ nixpkgs_branch }}#freecad --extra-experimental-features 'nix-command flakes'"
-    environment:
-      LD_LIBRARY_PATH: ""
-  - name: Unarchive FreeCAD {{ freecad_version }} source tarball
-    unarchive:
-      src: /home/kasm-default-profile/install_files/FreeCAD-{{ freecad_version_tag }}.tar.gz
-      dest: /home/kasm-default-profile/install_files
-      remote_src: yes
-      creates: /home/kasm-default-profile/install_files/FreeCAD-{{ freecad_version_tag }}/src/Gui/Icons/freecad-icon-16.png
-  - name: Create FreeCAD folder in /opt
-    shell: mkdir -p /opt/FreeCAD
-  - name: Copy FreeCAD icon to FreeCAD directory
-    copy:
-      src: /home/kasm-default-profile/install_files/FreeCAD-{{ freecad_version_tag }}/src/Gui/Icons/freecad-icon-16.png
-      dest: /opt/FreeCAD
-      remote_src: yes
-  - name: Configure FreeCAD desktop shortcut
-    shell: echo "[Desktop Entry]\nName=FreeCAD\nGenericName=FreeCAD\nExec={{ nix_bin_dir }}freecad\nIcon=/opt/FreeCAD/freecad-icon-16.png\nTerminal=false\nType=Application\nStartupNotify=false\nCategories=Application;Development;" > /usr/share/applications/freecad.desktop
-  - name: Get disk usage
-    shell: df -h
-    register: disk_usage
-  - name: Create FreeCAD modules directory in /usr/share/freecad/Mod
-    shell: mkdir -p /usr/share/freecad/Mod
-  - name: Clone Assembly4 (FreeCAD workbench) into FreeCAD modules directory
-    shell:
-      cmd: git clone https://codeberg.org/Zolko/Assembly4.git
-      chdir: /usr/share/freecad/Mod
-      executable: /bin/bash
   - name: Display disk usage
     debug:
       msg: "{{ disk_usage.stdout }}"
