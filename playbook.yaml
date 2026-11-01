@@ -82,32 +82,6 @@
       msg: "{{ disk_usage.stdout }}"
 
 -
-  # Install java
-  hosts: localhost
-  connection: local
-  tags:
-    - install_generator_plantuml
-    - install_utilities
-    - install_oshw_tools
-
-  vars:
-    jdk_version: 2:1.21-75
-    jdk_version_to_install: "{{ jdk_version }}+exp1"
-
-
-  tasks:
-  - name: Install JDK
-    apt:
-      name: "default-jdk={{ jdk_version_to_install }}"
-      update_cache: yes
-  - name: Get JDK Version
-    shell: java --version | grep -m 1 -i openjdk
-    register: installed_jdk_version
-  - name: Display JDK version
-    debug:
-      msg: "JDK = {{ installed_jdk_version.stdout }}"
-
--
 # add dev user to give vs code somewhere to install extensions
   hosts: localhost
   connection: local
@@ -235,6 +209,40 @@
       msg: "{{ disk_usage.stdout }}"
 
 -
+  # Install java
+  hosts: localhost
+  connection: local
+  tags:
+    - install_generator_plantuml
+    - install_utilities
+
+  vars:
+    nixpkgs_branch: "nixos-26.05"
+    nix_bin_dir: /nix/var/nix/profiles/default/bin
+    nix_bin_path: "{{ nix_bin_dir }}/nix"
+    jdk_version: 21.0.12.1
+
+  tasks:
+  - name: Install openjdk with nix
+    shell: "{{ nix_bin_path }} profile install nixpkgs/{{ nixpkgs_branch }}#openjdk --extra-experimental-features 'nix-command flakes'"
+    environment:
+      LD_LIBRARY_PATH: ""
+  - name: Get JDK Version
+    shell:
+      cmd: "{{ nix_bin_dir }}/java --version | grep -m 1 -i openjdk  | awk '{print $2}'"
+      executable: /bin/bash
+    register: installed_jdk_version
+    environment:
+      LD_LIBRARY_PATH: ""
+  - name: Test gradle version
+    fail:
+      msg: "OpenJDK Version Error: Expected {{ jdk_version }} | Found {{ installed_jdk_version.stdout }}"
+    when: installed_jdk_version.stdout != jdk_version
+  - name: Display JDK version
+    debug:
+      msg: "JDK = {{ installed_jdk_version.stdout }}"
+
+-
   # install gradle
   hosts: localhost
   connection: local
@@ -246,39 +254,20 @@
     nixpkgs_branch: "nixos-26.05"
     nix_bin_dir: /nix/var/nix/profiles/default/bin
     nix_bin_path: "{{ nix_bin_dir }}/nix"
-    gradle_version: "8.7"
+    gradle_version: "8.14.4"
 
   tasks:
-  - name: Join gradle v{{ gradle_version }} zip file from split files
-    shell: cat /home/kasm-default-profile/install_files/gradle-{{ gradle_version }}-bin.zip.parta* > /home/kasm-default-profile/install_files/gradle-{{ gradle_version }}-bin.zip
-  - name: Create gradle directory
-    file:
-      path: /opt/gradle
-      state: directory
-      mode: '0755'
-  - name: Install unzip
-    shell: "{{ nix_bin_path }} profile install nixpkgs/{{ nixpkgs_branch }}#unzip --extra-experimental-features 'nix-command flakes'"
+  - name: Install gradle with nix
+    shell: "{{ nix_bin_path }} profile install nixpkgs/{{ nixpkgs_branch }}#gradle --extra-experimental-features 'nix-command flakes'"
     environment:
       LD_LIBRARY_PATH: ""
-  - name: Unzip gradle binary
-    unarchive:
-      src: /home/kasm-default-profile/install_files/gradle-{{ gradle_version }}-bin.zip
-      dest: /opt/gradle/
-      remote_src: yes
-      creates: /opt/gradle/gradle-{{ gradle_version }}/LICENSE
-    environment:
-      LD_LIBRARY_PATH: ""
-      PATH: "{{ nix_bin_dir }}:$PATH"
-  - name: Create symlink to gradle in /usr/local/bin/
-    file:
-      src: /opt/gradle/gradle-{{ gradle_version }}/bin/gradle
-      dest: /usr/local/bin/gradle
-      owner: root
-      group: root
-      state: link
   - name: Get gradle version
-    shell: gradle --version | grep -v Welcome | grep Gradle | awk '{ print $2 }'
+    shell:
+      cmd: "{{ nix_bin_dir }}/gradle --version | grep -v Welcome | grep Gradle | awk '{ print $2 }'"
+      executable: /bin/bash
     register: installed_gradle_version
+    environment:
+      LD_LIBRARY_PATH: ""
   - name: Display gradle versions
     debug:
       msg: "gradle = {{ installed_gradle_version.stdout }}"
