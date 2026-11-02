@@ -61,27 +61,6 @@
 # addtional plays
 
 -
-  # Install build-essential
-  hosts: localhost
-  connection: local
-  tags:
-  - install_plantuml
-  - install_generator_asciidoctor
-  - install_doctools
-
-  tasks:
-  - name: Install build-essential
-    apt:
-      name: build-essential
-      update_cache: yes
-  - name: Get disk usage
-    shell: df -h
-    register: disk_usage
-  - name: Display disk usage
-    debug:
-      msg: "{{ disk_usage.stdout }}"
-
--
 # add dev user to give vs code somewhere to install extensions
   hosts: localhost
   connection: local
@@ -92,6 +71,7 @@
     - install_openscad
     - install_oshw_tools
     - install_orcaslicer
+    - install_doctools
 
   tasks:
   - name: Add dev user
@@ -119,6 +99,7 @@
     - install_openscad
     - install_oshw_tools
     - install_orcaslicer
+    - install_doctools
 
   vars:
     nix_version: "2.35.3"
@@ -217,6 +198,7 @@
   tags:
     - install_generator_plantuml
     - install_utilities
+    - install_doctools
 
   vars:
     nixpkgs_branch: "nixos-26.05"
@@ -251,6 +233,7 @@
   gather_facts: yes
   tags:
     - install_utilities
+    - install_doctools
 
   vars:
     nixpkgs_branch: "nixos-26.05"
@@ -287,6 +270,7 @@
   connection: local
   tags:
     - install_vscode
+    - install_doctools
 
   vars:
     nixpkgs_branch: "nixos-26.05"
@@ -316,6 +300,7 @@
   connection: local
   tags:
     - install_vscode
+    - install_doctools
 
   environment:
     DONT_PROMPT_WSL_INSTALL: 1
@@ -358,35 +343,12 @@
   connection: local
   tags:
     - install_vscode
+    - install_doctools
 
   tasks:
   - name: Copy VS Code changes to kasm-default-profile
     shell:
       cmd: cp -r /home/dev/.config/Code/ /home/kasm-default-profile/.config/Code/ && cp -r /home/dev/.vscode/ /home/kasm-default-profile/.vscode/
-  - name: Get disk usage
-    shell: df -h
-    register: disk_usage
-  - name: Display disk usage
-    debug:
-      msg: "{{ disk_usage.stdout }}"
-
--
-  # Clean up (remove) dev user now that things are installed
-  hosts: localhost
-  connection: local
-  tags:
-    - install_vscode
-    - install_utilities
-    - install_openscad
-    - install_oshw_tools
-    - install_orcaslicer
-
-  tasks:
-  - name: Remove dev user
-    user:
-      name: dev
-      state: absent
-      remove: yes
   - name: Get disk usage
     shell: df -h
     register: disk_usage
@@ -490,6 +452,107 @@
       version: "{{ m30pm_version }}"
     - name: markedpp
       version: "{{ markedpp_version }}"
+
+-
+  # install Pandoc & TexLive
+  hosts: localhost
+  connection: local
+  gather_facts: yes
+  tags:
+  - install_generator_pandoc
+  - install_doctools
+
+  vars:
+    nixpkgs_branch: "nixos-26.05"
+    nix_bin_dir: /nix/var/nix/profiles/default/bin
+    nix_bin_path: "{{ nix_bin_dir }}/nix"
+    yq_version: "4.33.2"
+    yq_version_expected: "v{{ yq_version }}"
+    pandoc_version: "3.2"
+    texlive_version_expected: "pdfTeX 3.141592653-2.6-1.40.27 (TeX Live 2025/nixos.org)"
+
+  tasks:
+  - name: Install texliveFull
+    shell: "{{ nix_bin_path }} profile install nixpkgs/{{ nixpkgs_branch }}#texliveFull --extra-experimental-features 'nix-command flakes'"
+    environment:
+      LD_LIBRARY_PATH: ""
+  - name: Install yq
+    copy:
+      src: /home/kasm-default-profile/install_files/yq
+      dest: /usr/bin/yq
+      remote_src: yes
+      owner: root
+      group: root
+      mode: '0755'
+  - name: Get yq version
+    shell: yq -V | awk '{ print $4 }'
+    register: installed_yq_version
+    environment:
+      LD_LIBRARY_PATH: ""
+  - name: Display yq version
+    debug:
+      msg: "yq = {{ installed_yq_version.stdout }}"
+  - name: Test yq version
+    fail:
+      msg: "yq Version Error: Expected {{ yq_version_expected }} | Found {{ installed_yq_version.stdout }}"
+    when: installed_yq_version.stdout != yq_version_expected
+  - name: Get pandoc version
+    shell: pandoc --version | grep -m 1 -i pandoc | sed 's/[[:alpha:]|(|[:space:]]//g'
+    register: installed_pandoc_version
+  - name: Get TeX Live version
+    shell: "{{ nix_bin_dir }}/latex --version | grep -i Tex -m 1"
+    register: installed_texlive_version
+    environment:
+      LD_LIBRARY_PATH: ""
+  - name: Display pandoc and texlive versions
+    debug:
+      msg: "pandoc = {{ installed_pandoc_version.stdout }} | texlive = {{ installed_texlive_version.stdout }}"
+  - name: Test pandoc version
+    fail:
+      msg: "Pandoc Version Error: Expected {{ pandoc_version }} | Found {{ installed_pandoc_version.stdout }}"
+    when: installed_pandoc_version.stdout != pandoc_version
+  - name: Test texlive version
+    fail:
+      msg: "TeX Live Version Error: Expected {{ texlive_version_expected }} | Found {{ installed_texlive_version.stdout }}"
+    when: installed_texlive_version.stdout != texlive_version_expected
+
+  roles:
+  - role: andrewrothstein.pandoc
+    pandoc_ver: "{{ pandoc_version }}"
+
+-
+  # install ASCII Doctor
+  hosts: localhost
+  connection: local
+  gather_facts: yes
+  tags:
+  - install_generator_asciidoctor
+  - install_doctools
+
+  vars:
+    nixpkgs_branch: "nixos-26.05"
+    nix_bin_dir: /nix/var/nix/profiles/default/bin
+    nix_bin_path: "{{ nix_bin_dir }}/nix"
+    asciidoctor_version: 2.0.26
+    public_suffix_version: 6.0.1
+
+  tasks:
+  - name: Install asciidoctor-with-extensions
+    shell: "{{ nix_bin_path }} profile install nixpkgs/{{ nixpkgs_branch }}#asciidoctor-with-extensions --extra-experimental-features 'nix-command flakes'"
+    environment:
+      LD_LIBRARY_PATH: ""
+  - name: Get asciidoctor version
+    shell: "{{ nix_bin_dir }}/asciidoctor --version | grep Asciidoctor | awk '{ print $2 }'"
+    register: installed_asciidoctor_version
+    environment:
+      LD_LIBRARY_PATH: ""
+  - name: Display asciidoctor version
+    debug:
+      msg: "ASCII Doctor = {{ installed_asciidoctor_version.stdout }}"
+  - name: Test asciidoctor version
+    fail:
+      msg: "ASCII Doctor Version Error: Expected {{ asciidoctor_version }} | Found {{ installed_asciidoctor_version.stdout }}"
+    when: installed_asciidoctor_version.stdout != asciidoctor_version
 
 -
   # install fprime tools
@@ -830,6 +893,31 @@
       cmd: ./pharo RoassalPlayground.image eval --save "[Metacello new baseline{{ ':' }} 'Roassal3Exporters'; repository{{ ':' }} 'gitlocal{{ ':' }}//./pharo-local/iceberg/pharo-contributions/Roassal3Exporters/src'; load] on{{ ':' }} MCMergeOrLoadWarning do{{ ':' }} [:warning | warning load ]"
       chdir: /home/kasm-default-profile/Pharo/images/RoassalPlayground
       executable: /bin/bash
+  - name: Get disk usage
+    shell: df -h
+    register: disk_usage
+  - name: Display disk usage
+    debug:
+      msg: "{{ disk_usage.stdout }}"
+
+-
+  # Clean up (remove) dev user now that things are installed
+  hosts: localhost
+  connection: local
+  tags:
+    - install_vscode
+    - install_utilities
+    - install_openscad
+    - install_oshw_tools
+    - install_orcaslicer
+    - install_doctools
+
+  tasks:
+  - name: Remove dev user
+    user:
+      name: dev
+      state: absent
+      remove: yes
   - name: Get disk usage
     shell: df -h
     register: disk_usage

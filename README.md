@@ -7,34 +7,43 @@
 This repo provides an Immutable-Infrastructure-as-Code (IIaC) workspace for Solarpunk Open Source Hardware (OSHW) development, based on an Ansible template for [KASM Ubuntu Jammy](https://hub.docker.com/r/kasmweb/core-ubuntu-jammy) images.  The workspace is configured with the following software:
 
 - Node JS Tools
-    - nodejs v20.11.1
-    - npm v10.2.4 (included with nodejs)
-    - npx v10.2.4 (included with nodejs)
-    - yarn v3.5.0
-    - oclif v3.10.0
-    - [cli-njk](https://github.com/elcharitas/cli-njk) v1.0.0
-    - [ungit](https://github.com/FredrikNoren/ungit) 1.5.25
-- git cli
-- [Keychain](https://www.funtoo.org/Keychain)
+    - nodejs v23.8.0
+    - npm v10.9.2 (included with nodejs)
+    - npx v10.9.2 (included with nodejs)
+    - oclif v4.17.32
+    - m30pm v0.1.0
+    - markedpp v2.0.1
+- Utilities
+    - git 2.54.0
+    - [Keychain](https://www.funtoo.org/Keychain)
+    - [gradle](https://docs.gradle.org/8.14.4/userguide/userguide.html) v8.14.4
 - Python 3.8.x (part of the image template) with the following packages (not part of the image template)
     - pip
-    - [JupyterLab](https://jupyter.org/)
+<!--    - [JupyterLab](https://jupyter.org/) -->
     - [Jupyter Notebook](https://jupyter.org/)
-    - [Voilà](https://voila.readthedocs.io/en/stable/index.html)
+<!--    - [Voilà](https://voila.readthedocs.io/en/stable/index.html) -->
     - [Pint](https://pint.readthedocs.io/en/stable/)
-- [Pharo Launcher](https://github.com/pharo-project/pharo-launcher) with following [https://pharo.org/web/](Pharo) images
+<!-- - [Pharo Launcher](https://github.com/pharo-project/pharo-launcher) with following [https://pharo.org/web/](Pharo) images
     - "RoassalPlayground" pre-loaded with
         - [Roassal3](https://github.com/ObjectProfile/Roassal3) v1.01b
         - [NeoCSV](https://github.com/svenvc/NeoCSV)
         - [XMLParser](https://github.com/pharo-contributions/XML-XMLParser)
-        - [Roassal3Exporters](https://github://ObjectProfile/Roassal3Exporters) v1.0
+        - [Roassal3Exporters](https://github://ObjectProfile/Roassal3Exporters) v1.0 -->
+- Artifact Generators
+    - [Pandoc](https://pandoc.org/) v2.18
+    - [TeX Live](https://www.tug.org/texlive/) v2019 to enable PDF support in Pandoc
+    - [yq](https://mikefarah.gitbook.io/yq/) v4.33.2
+    - [PlantUML](https://plantuml.com/) v1.2026.2
+        - JDK v11
+        - Graphviz 2.50 (built from source)
+    - [AsciiDoctor](https://asciidoctor.org/) v2.0.18 with PlantUML and PDF support
 - VS Code with the following extensions (note, auto-updates are disabled)
     - [Python extension by Microsoft](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
     - [Dendron](https://marketplace.visualstudio.com/items?itemName=dendron.dendron)
 - Open Source Hardware tools
     - [OrcaSlicer](https://github.com/OrcaSlicer/OrcaSlicer) 2.3.2
     - [OpenSCAD](https://openscad.org/) 2021.01
-    - [FPrime (tools installed via fprime-workspace-image)](https://github.com/fprime-community/fprime-workspace-image) v3.4.0-1.1.0
+<!--    - [FPrime (tools installed via fprime-workspace-image)](https://github.com/fprime-community/fprime-workspace-image) v3.4.0-1.1.0v-->
 
 ## Requirements
 
