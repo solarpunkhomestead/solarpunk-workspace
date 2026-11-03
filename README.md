@@ -11,7 +11,7 @@ This repo provides an Immutable-Infrastructure-as-Code (IIaC) workspace for Sola
     - npm v10.9.2 (included with nodejs)
     - npx v10.9.2 (included with nodejs)
     - oclif v4.17.32
-    - m30pm v0.1.0
+    - m30pm v0.2.1
     - markedpp v2.0.1
 - Utilities
     - git 2.54.0

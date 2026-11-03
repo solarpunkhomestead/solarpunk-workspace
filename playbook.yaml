@@ -374,7 +374,7 @@
     generator_code_version: "1.11.1"
     oclif_version: "4.17.32"
     typescript_version: "5.5.3"
-    m30pm_version: "0.1.0"
+    m30pm_version: "0.2.1"
     markedpp_version: "2.0.1"
     markedpp_version_expected: "v{{ markedpp_version }}"
 
