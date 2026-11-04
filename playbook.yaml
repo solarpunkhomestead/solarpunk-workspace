@@ -218,7 +218,7 @@
     register: installed_jdk_version
     environment:
       LD_LIBRARY_PATH: ""
-  - name: Test gradle version
+  - name: Test java version
     fail:
       msg: "OpenJDK Version Error: Expected {{ jdk_version }} | Found {{ installed_jdk_version.stdout }}"
     when: installed_jdk_version.stdout != jdk_version
@@ -239,20 +239,44 @@
     nixpkgs_branch: "nixos-26.05"
     nix_bin_dir: /nix/var/nix/profiles/default/bin
     nix_bin_path: "{{ nix_bin_dir }}/nix"
-    gradle_version: "8.14.4"
+    gradle_version: "8.7"
 
   tasks:
-  - name: Install gradle with nix
-    shell: "{{ nix_bin_path }} profile install nixpkgs/{{ nixpkgs_branch }}#gradle --extra-experimental-features 'nix-command flakes'"
+  - name: Install unzip with nix
+    shell: "{{ nix_bin_path }} profile install nixpkgs/{{ nixpkgs_branch }}#unzip --extra-experimental-features 'nix-command flakes'"
     environment:
       LD_LIBRARY_PATH: ""
+  - name: Join gradle v{{ gradle_version }} zip file from split files
+    shell: cat /home/kasm-default-profile/install_files/gradle-{{ gradle_version }}-bin.zip.parta* > /home/kasm-default-profile/install_files/gradle-{{ gradle_version }}-bin.zip
+  - name: Create gradle directory
+    file:
+      path: /opt/gradle
+      state: directory
+      mode: '0755'
+  - name: Unzip gradle binary
+    shell:
+      cmd: "{{ nix_bin_dir }}/unzip gradle-{{ gradle_version }}-bin.zip -d /opt/gradle/"
+      chdir: /home/kasm-default-profile/install_files/
+      executable: /bin/bash
+    args:
+      creates: /opt/gradle/gradle-{{ gradle_version }}/LICENSE
+    environment:
+      LD_LIBRARY_PATH: ""
+  - name: "Create symlink to gradle in {{ nix_bin_dir }}"
+    file:
+      src: /opt/gradle/gradle-{{ gradle_version }}/bin/gradle
+      dest: /usr/local/bin/gradle
+      owner: root
+      group: root
+      state: link
   - name: Get gradle version
     shell:
-      cmd: "{{ nix_bin_dir }}/gradle --version | grep -v Welcome | grep Gradle | awk '{ print $2 }'"
+      cmd: gradle --version | grep -v Welcome | grep Gradle | awk '{ print $2 }'
       executable: /bin/bash
     register: installed_gradle_version
     environment:
       LD_LIBRARY_PATH: ""
+      PATH: "{{ nix_bin_dir }}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
   - name: Display gradle versions
     debug:
       msg: "gradle = {{ installed_gradle_version.stdout }}"
@@ -260,10 +284,6 @@
     fail:
       msg: "Gradle Version Error: Expected {{ gradle_version }} | Found {{ installed_gradle_version.stdout }}"
     when: installed_gradle_version.stdout != gradle_version
-  - name: Display disk usage
-    debug:
-      msg: "{{ disk_usage.stdout }}"
-
 -
   # install sudo for the vs-code role below
   hosts: localhost

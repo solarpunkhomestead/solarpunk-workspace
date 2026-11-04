@@ -16,7 +16,7 @@ This repo provides an Immutable-Infrastructure-as-Code (IIaC) workspace for Sola
 - Utilities
     - git 2.54.0
     - [Keychain](https://www.funtoo.org/Keychain)
-    - [gradle](https://docs.gradle.org/8.14.4/userguide/userguide.html) v8.14.4
+    - [gradle](https://docs.gradle.org/8.7/userguide/userguide.html) v8.7
 - Python 3.8.x (part of the image template) with the following packages (not part of the image template)
     - pip
 <!--    - [JupyterLab](https://jupyter.org/) -->
