@@ -111,6 +111,7 @@
     git_version: "2.54.0"
     keychain_version: "2.9.8"
     keychain_version_expected: "{{ keychain_version }}."
+    tree_version: "2.3.2"
 
   tasks:
   - name: Download nix tarball {{ nix_version }}
@@ -176,6 +177,22 @@
     fail:
       msg: "Keychain Version Error: Expected {{ keychain_version_expected }} | Found {{ installed_keychain_version.stdout }}"
     when: installed_keychain_version.stdout != keychain_version_expected
+  - name: Install tree
+    shell: "{{ nix_bin_path }} profile install nixpkgs/{{ nixpkgs_branch }}#tree --extra-experimental-features 'nix-command flakes'"
+    environment:
+      LD_LIBRARY_PATH: ""
+  - name: Get tree version
+    shell: "{{ nix_bin_dir }}/tree --version | awk '{ print $2 }' | sed 's/v//g'"
+    register: installed_tree_version
+    environment:
+      LD_LIBRARY_PATH: ""
+  - name: Display tree versions
+    debug:
+      msg: "tree = {{ installed_tree_version.stdout }}"
+  - name: Test tree version
+    fail:
+      msg: "Tree Version Error: Expected {{ tree_version }} | Found {{ installed_tree_version.stdout }}"
+    when: installed_tree_version.stdout != tree_version
   - name: Install @capsulecorplab .vimrc
     get_url:
       url: https://gist.githubusercontent.com/capsulecorplab/495058e7a57ed8adaed3c40c80d09739/raw/4a6e6f6ff92b96919be111c9cbb5a4a21ab472d2/.vimrc
