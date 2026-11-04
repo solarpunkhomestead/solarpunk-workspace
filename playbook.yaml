@@ -69,7 +69,7 @@
     - install_vscode
     - install_python_packages
     - install_openscad
-    - install_oshw_tools
+    - install_design_tools
     - install_orcaslicer
     - install_doctools
 
@@ -97,7 +97,7 @@
     - install_fprime
     - install_pharo
     - install_openscad
-    - install_oshw_tools
+    - install_design_tools
     - install_orcaslicer
     - install_doctools
 
@@ -635,7 +635,7 @@
   connection: local
   gather_facts: yes
   tags:
-    - install_oshw_tools
+    - install_design_tools
     - install_orcaslicer
 
   vars:
@@ -674,7 +674,7 @@
   connection: local
   gather_facts: yes
   tags:
-    - install_oshw_tools
+    - install_design_tools
     - install_openscad
 
   vars:
@@ -928,7 +928,7 @@
     - install_vscode
     - install_utilities
     - install_openscad
-    - install_oshw_tools
+    - install_design_tools
     - install_orcaslicer
     - install_doctools
 
