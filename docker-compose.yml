@@ -1,9 +1,8 @@
 ---
-version: "3.7"
 services:
   kasm:
     build: .
-    image: ghcr.io/solarpunkhomestead/solarpunk-workspace:install-oshw-tools
+    image: ghcr.io/solarpunkhomestead/solarpunk-workspace:update-oshw-tools
     ports:
       - "6902:6901"
     environment:
@@ -16,12 +15,13 @@ services:
       - type: bind
         source: ./kasm_user
         target: /home/kasm-user
-    devices:
-      - "/dev/ttyACM0"
-      - "/dev/ttyUSB0"
-    device_cgroup_rules:
-      - "c 188:* rmw"
-    privileged: true
     security_opt:
       - seccomp=unconfined
+    # Uncomment following lines to bind to serial ports on host machine
+    # devices:
+    #   - "/dev/ttyACM0"
+    #   - "/dev/ttyUSB0"
+    # device_cgroup_rules:
+    #   - "c 188:* rmw"
+    # privileged: true
 ...
