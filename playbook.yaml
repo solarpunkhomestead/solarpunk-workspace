@@ -656,10 +656,10 @@
     - install_orcaslicer
 
   vars:
-    nixpkgs_branch: "nixos-26.05"
+    nixpkgs_branch: "nixos-unstable"
     nix_bin_dir: /nix/var/nix/profiles/default/bin
     nix_bin_path: "{{ nix_bin_dir }}/nix"
-    orcaslicer_version: 2.3.2
+    orcaslicer_version: 2.4.2
 
   tasks:
   - name: Install orca-slicer  with nix
