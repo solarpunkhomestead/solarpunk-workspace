@@ -688,6 +688,10 @@
       owner: root
       group: root
       mode: '0755'
+  - name: Recursively set permission for OrcaSlicer directory
+    shell:
+      cmd: chmod -R 755 /opt/orca-slicer
+      executable: /bin/bash
   - name: Create symlink to OrcaSlicer application binary in /usr/local/bin/
     file:
       src: /opt/orca-slicer/AppRun
