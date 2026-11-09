@@ -70,7 +70,6 @@
     - install_python_packages
     - install_openscad
     - install_design_tools
-    - install_orcaslicer
     - install_doctools
 
   tasks:
@@ -98,7 +97,6 @@
     - install_pharo
     - install_openscad
     - install_design_tools
-    - install_orcaslicer
     - install_doctools
 
   vars:
@@ -656,21 +654,48 @@
     - install_orcaslicer
 
   vars:
-    nixpkgs_branch: "nixos-unstable"
-    nix_bin_dir: /nix/var/nix/profiles/default/bin
-    nix_bin_path: "{{ nix_bin_dir }}/nix"
     orcaslicer_version: 2.4.2
 
   tasks:
-  - name: Install orca-slicer  with nix
-    shell: "{{ nix_bin_path }} profile install nixpkgs/{{ nixpkgs_branch }}#orca-slicer --extra-experimental-features 'nix-command flakes'"
-    environment:
-      LD_LIBRARY_PATH: ""
+  - name: Download OrcaSlicer AppImage
+    shell:
+      cmd: curl -L https://github.com/OrcaSlicer/OrcaSlicer/releases/download/v{{ orcaslicer_version }}/OrcaSlicer_Linux_AppImage_Ubuntu2404_V{{ orcaslicer_version }}.AppImage -o OrcaSlicer.AppImage
+      chdir: /home/kasm-default-profile/install_files/
+      executable: /bin/bash
+  - name: Set permission for OrcaSlicer AppImage
+    shell:
+      cmd: chmod 755 OrcaSlicer.AppImage
+      chdir: /home/kasm-default-profile/install_files/
+      executable: /bin/bash
+  - name: Create /opt directory for installing OrcaSlicer AppImage
+    shell: mkdir -p /opt
+  - name: Extract OrcaSlicer AppImage
+    shell:
+      cmd: ./OrcaSlicer.AppImage --appimage-extract
+      chdir: /home/kasm-default-profile/install_files/
+      executable: /bin/bash
+    args:
+      creates: /home/kasm-default-profile/install_files/squashfs-root/AppRun
+  - name: Copy extracted contents of OrcaSlicer AppImage into /opt/orca-slicer
+    copy:
+      src: /home/kasm-default-profile/install_files/squashfs-root/
+      dest: /opt/orca-slicer/
+      remote_src: yes
+      owner: root
+      group: root
+      mode: '0755'
+  - name: Create symlink to OrcaSlicer application binary in /usr/local/bin/
+    file:
+      src: /opt/orca-slicer/AppRun
+      dest: /usr/local/bin/orca-slicer
+      owner: root
+      group: root
+      state: link
+  - name: Configure OrcaSlicer desktop file
+    shell: echo "[Desktop Entry]\nName=OrcaSlicer\nExec=/opt/orca-slicer/AppRun %F\nIcon=/opt/orca-slicer/OrcaSlicer.png\nType=Application\nPrefersNonDefaultGPU=true\nX-KDE-RunOnDiscreteGpu=true\nCategories=Utility;\nMimeType=model/stl;application/vnd.ms-3mfdocument;application/prs.wavefront-obj;application/x-amf;" > /usr/share/applications/OrcaSlicer.desktop
   - name: Get orca-slicer version
-    shell: "{{ nix_bin_dir }}/orca-slicer --help | grep OrcaSlicer- | sed 's/OrcaSlicer-//g' | sed 's/://g'"
+    shell: orca-slicer --help | grep OrcaSlicer- | sed 's/OrcaSlicer-//g' | sed 's/://g'
     register: installed_orcaslicer_version
-    environment:
-      LD_LIBRARY_PATH: ""
   - name: Display orca-slicer version
     debug:
       msg: "orca-slicer = {{ installed_orcaslicer_version.stdout }}"
@@ -946,7 +971,6 @@
     - install_utilities
     - install_openscad
     - install_design_tools
-    - install_orcaslicer
     - install_doctools
 
   tasks:
