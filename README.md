@@ -31,7 +31,7 @@ This repo provides an Immutable-Infrastructure-as-Code (IIaC) workspace for Sola
         - [XMLParser](https://github.com/pharo-contributions/XML-XMLParser)
         - [Roassal3Exporters](https://github://ObjectProfile/Roassal3Exporters) v1.0 -->
 - Artifact Generators
-    - [Pandoc](https://pandoc.org/) v2.18
+    - [Pandoc](https://pandoc.org/) 3.7.0.2
     - [TeX Live](https://www.tug.org/texlive/) v2019 to enable PDF support in Pandoc
     - [yq](https://mikefarah.gitbook.io/yq/) v4.33.2
     - [PlantUML](https://plantuml.com/) v1.2026.2

@@ -70,6 +70,7 @@
     - install_python_packages
     - install_openscad
     - install_design_tools
+    - install_generator_pandoc
     - install_doctools
 
   tasks:
@@ -97,6 +98,7 @@
     - install_pharo
     - install_openscad
     - install_design_tools
+    - install_generator_pandoc
     - install_doctools
 
   vars:
@@ -503,7 +505,7 @@
     nix_bin_path: "{{ nix_bin_dir }}/nix"
     yq_version: "4.33.2"
     yq_version_expected: "v{{ yq_version }}"
-    pandoc_version: "3.2"
+    pandoc_version: "3.7.0.2"
     texlive_version_expected: "pdfTeX 3.141592653-2.6-1.40.27 (TeX Live 2025/nixos.org)"
 
   tasks:
@@ -531,9 +533,15 @@
     fail:
       msg: "yq Version Error: Expected {{ yq_version_expected }} | Found {{ installed_yq_version.stdout }}"
     when: installed_yq_version.stdout != yq_version_expected
+  - name: Install pandoc
+    shell: "{{ nix_bin_path }} profile install nixpkgs/{{ nixpkgs_branch }}#pandoc --extra-experimental-features 'nix-command flakes'"
+    environment:
+      LD_LIBRARY_PATH: ""
   - name: Get pandoc version
-    shell: pandoc --version | grep -m 1 -i pandoc | sed 's/[[:alpha:]|(|[:space:]]//g'
+    shell: "{{ nix_bin_dir }}/pandoc --version | grep -m 1 -i pandoc | sed 's/[[:alpha:]|(|[:space:]]//g'"
     register: installed_pandoc_version
+    environment:
+      LD_LIBRARY_PATH: ""
   - name: Get TeX Live version
     shell: "{{ nix_bin_dir }}/latex --version | grep -i Tex -m 1"
     register: installed_texlive_version
@@ -550,10 +558,6 @@
     fail:
       msg: "TeX Live Version Error: Expected {{ texlive_version_expected }} | Found {{ installed_texlive_version.stdout }}"
     when: installed_texlive_version.stdout != texlive_version_expected
-
-  roles:
-  - role: andrewrothstein.pandoc
-    pandoc_ver: "{{ pandoc_version }}"
 
 -
   # install ASCII Doctor
@@ -971,6 +975,7 @@
     - install_utilities
     - install_openscad
     - install_design_tools
+    - install_generator_pandoc
     - install_doctools
 
   tasks:
