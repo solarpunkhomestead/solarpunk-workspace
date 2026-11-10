@@ -68,7 +68,6 @@
     - install_utilities
     - install_vscode
     - install_python_packages
-    - install_openscad
     - install_design_tools
     - install_generator_pandoc
     - install_doctools
@@ -96,7 +95,6 @@
     - install_vscode
     - install_fprime
     - install_pharo
-    - install_openscad
     - install_design_tools
     - install_generator_pandoc
     - install_doctools
@@ -728,22 +726,51 @@
     - install_openscad
 
   vars:
-    nixpkgs_branch: "nixos-26.05"
-    nix_bin_dir: /nix/var/nix/profiles/default/bin
-    nix_bin_path: "{{ nix_bin_dir }}/nix"
     openscad_version: "2021.01"
-    openscad_version_to_install: "{{ openscad_version }}-6build4"
 
   tasks:
-  - name: Install openscad  with nix
-    shell: "{{ nix_bin_path }} profile install nixpkgs/{{ nixpkgs_branch }}#openscad --extra-experimental-features 'nix-command flakes'"
-    environment:
-      LD_LIBRARY_PATH: ""
+  - name: Download OpenSCAD AppImage
+    shell:
+      cmd: curl -L https://github.com/openscad/openscad/releases/download/openscad-{{ openscad_version }}/OpenSCAD-{{ openscad_version }}-x86_64.AppImage -o OpenSCAD.AppImage
+      chdir: /home/kasm-default-profile/install_files/
+      executable: /bin/bash
+    args:
+      creates: /home/kasm-default-profile/install_files/OpenSCAD.AppImage
+  - name: Set permission for OpenSCAD AppImage
+    shell:
+      cmd: chmod 755 OpenSCAD.AppImage
+      chdir: /home/kasm-default-profile/install_files/
+      executable: /bin/bash
+  - name: Create /opt directory for installing OpenSCAD AppImage
+    shell: mkdir -p /opt
+  - name: Extract OpenSCAD AppImage
+    shell:
+      cmd: ./OpenSCAD.AppImage --appimage-extract
+      chdir: /home/kasm-default-profile/install_files/
+      executable: /bin/bash
+    args:
+      creates: /home/kasm-default-profile/install_files/squashfs-root/usr/bin/openscad
+  - name: Copy extracted contents of OpenSCAD AppImage into /opt/openscad
+    copy:
+      src: /home/kasm-default-profile/install_files/squashfs-root/
+      dest: /opt/openscad/
+      remote_src: yes
+      owner: root
+      group: root
+      mode: '0755'
+  - name: Recursively set permission for OpenSCAD directory
+    shell:
+      cmd: chmod -R 755 /opt/openscad
+      executable: /bin/bash
+  - name: Create symlink to OpenSCAD application binary in /usr/local/bin/
+    shell: ln -sv /opt/openscad/usr/bin/openscad /usr/local/bin/openscad
+  - name: Configure OpenSCAD desktop file
+    shell: echo "[Desktop Entry]\nName=OpenSCAD\nExec=/opt/openscad/usr/bin/openscad %F\nIcon=/opt/openscad//usr/share/icons/hicolor/48x48/apps/openscad.png\nType=Application\nCategories=Graphics;3DGraphics;Engineering;\nMimeType=application/x-openscad;\nKeywords=3d;solid;geometry;csg;model;stl;" > /usr/share/applications/OpenSCAD.desktop
   - name: Get OpenSCAD version
-    shell: "{{ nix_bin_dir }}/openscad --info 2>/dev/null | grep 'OpenSCAD Version' | awk '{ print $3 '}"
+    shell:
+      cmd: openscad --version 2>&1 | awk '{ print $3 }'
+      executable: /bin/bash
     register: installed_openscad_version
-    environment:
-      LD_LIBRARY_PATH: ""
   - name: Display OpenSCAD version
     debug:
       msg: "OpenSCAD = {{ installed_openscad_version.stdout }}"
@@ -977,7 +1004,6 @@
   tags:
     - install_vscode
     - install_utilities
-    - install_openscad
     - install_design_tools
     - install_generator_pandoc
     - install_doctools
