@@ -43,7 +43,7 @@ This repo provides an Immutable-Infrastructure-as-Code (IIaC) workspace for Sola
     - [Dendron](https://marketplace.visualstudio.com/items?itemName=dendron.dendron)
 - Open Source Hardware tools
     - [OrcaSlicer](https://github.com/OrcaSlicer/OrcaSlicer) 2.5.0
-    - [OpenSCAD](https://openscad.org/) 2021.01
+    - [OpenSCAD](https://openscad.org/) 2026.11-RC0
 <!--    - [FPrime (tools installed via fprime-workspace-image)](https://github.com/fprime-community/fprime-workspace-image) v3.4.0-1.1.0v-->
 
 ## Requirements

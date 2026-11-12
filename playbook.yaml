@@ -726,7 +726,7 @@
     - install_openscad
 
   vars:
-    openscad_version: "2021.01"
+    openscad_version: "2026.11-RC0"
 
   tasks:
   - name: Download OpenSCAD AppImage
